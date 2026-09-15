@@ -46,7 +46,12 @@ class OpportunitiesPage extends StatelessWidget {
   Widget _page(BuildContext context, String title, String subtitle, IconData icon, List<Widget> cards, Widget table) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F7FC),
-      appBar: AppBar(title: Text(title), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back',
+        ),title: Text(title), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

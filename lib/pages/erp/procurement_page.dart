@@ -15,7 +15,12 @@ class ProcurementPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F7FC),
-      appBar: AppBar(title: const Text('Procurement'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back',
+        ),title: const Text('Procurement'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

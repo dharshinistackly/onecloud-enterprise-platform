@@ -20,6 +20,11 @@ class TaxManagementPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: _bg,
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back',
+        ),
         title: const Text('Tax Management'),
         backgroundColor: _navy,
         foregroundColor: Colors.white,

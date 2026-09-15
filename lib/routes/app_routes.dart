@@ -1,9 +1,10 @@
+// ignore: uri_does_not_exist
 import 'package:flutter/material.dart';
 
-import '../pages/auth/login_page.dart';
-import '../pages/auth/forgot_password_page.dart';
-import '../pages/auth/signup_page.dart';
-import '../pages/auth/social_login_page.dart';
+import '../auth/login_page.dart';
+import '../auth/forgot_password_page.dart';
+import '../auth/signup_page.dart';
+import '../auth/social_login_page.dart';
 
 import '../pages/dashboard/home_page.dart';
 

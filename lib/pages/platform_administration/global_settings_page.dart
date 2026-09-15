@@ -139,6 +139,15 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
       color: Colors.white,
       child: Row(
         children: [
+          IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Color(0xFF0F3D66),
+            ),
+            tooltip: 'Back',
+          ),
+          const SizedBox(width: 4),
           const Icon(
             Icons.admin_panel_settings_outlined,
             color: Color(0xFF1677C8),

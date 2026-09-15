@@ -66,9 +66,9 @@ class MenuProvider extends ChangeNotifier {
 
   // All sidebar groups
   List<MenuGroupModel> get menuGroups => const [
-        // ------------------------------------------------------------
+
         // PLATFORM ADMINISTRATION
-        // ------------------------------------------------------------
+        
         MenuGroupModel(
           title: 'Platform Administration',
           icon: Icons.admin_panel_settings_outlined,
@@ -119,9 +119,9 @@ class MenuProvider extends ChangeNotifier {
           ],
         ),
 
-        // ------------------------------------------------------------
+        
         // HRMS SERVICE
-        // ------------------------------------------------------------
+        
         MenuGroupModel(
           title: 'HRMS Service',
           icon: Icons.people_alt_outlined,

@@ -92,7 +92,7 @@ class AttendancePage extends StatelessWidget {
       backgroundColor: const Color(0xFFF1F7FC),
       body: Column(
         children: [
-          _header(),
+          _header(context),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(28),
@@ -201,7 +201,7 @@ class AttendancePage extends StatelessWidget {
     );
   }
 
-  Widget _header() {
+  Widget _header(BuildContext context) {
     return Container(
       height: 70,
       padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -211,8 +211,17 @@ class AttendancePage extends StatelessWidget {
           bottom: BorderSide(color: Color(0xFFE2E8F0)),
         ),
       ),
-      child: const Row(
+      child: Row(
         children: [
+          IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Color(0xFF0F3D66),
+            ),
+            tooltip: 'Back',
+          ),
+          const SizedBox(width: 4),
           Icon(
             Icons.access_time_outlined,
             color: Color(0xFF1677C8),
