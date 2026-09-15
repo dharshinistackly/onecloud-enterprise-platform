@@ -6,11 +6,47 @@ import '../routes/app_routes.dart';
 
 class Sidebar extends StatelessWidget {
   final VoidCallback? onLogout;
+  final VoidCallback? onItemSelected;
+  final ValueChanged<String>? onRouteSelected;
 
   const Sidebar({
     super.key,
     this.onLogout,
+    this.onItemSelected,
+    this.onRouteSelected,
   });
+
+  void _openRoute(
+    BuildContext context,
+    String route,
+  ) {
+    if (!AppRoutes.routes.containsKey(route)) {
+      return;
+    }
+
+    final provider = context.read<MenuProvider>();
+    provider.selectRoute(route);
+
+    onItemSelected?.call();
+    onRouteSelected?.call(route);
+  }
+
+  void _showUnavailable(
+    BuildContext context,
+    MenuItemModel item,
+  ) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            '${item.title} page will be connected soon.',
+          ),
+          duration: const Duration(seconds: 1),
+          backgroundColor: item.color,
+        ),
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +66,11 @@ class Sidebar extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // ----------------------------------------------------------
-          // FIXED HEADER
-          // ----------------------------------------------------------
           Container(
             height: 82,
-            padding: const EdgeInsets.symmetric(horizontal: 18),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 18,
+            ),
             child: Row(
               children: [
                 Image.asset(
@@ -43,57 +78,27 @@ class Sidebar extends StatelessWidget {
                   width: 145,
                   height: 48,
                   fit: BoxFit.contain,
+                  errorBuilder: (
+                    context,
+                    error,
+                    stackTrace,
+                  ) {
+                    return const Text(
+                      'OneCloud Enterprise',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
           ),
 
-          // ----------------------------------------------------------
-          // FIXED SEARCH BAR
-          // ----------------------------------------------------------
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
-            child: Container(
-              height: 38,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(9),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.15),
-                ),
-              ),
-              child: const TextField(
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Search...',
-                  hintStyle: TextStyle(
-                    color: Color(0xFFB8C7D9),
-                    fontSize: 13,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: Color(0xFFB8C7D9),
-                    size: 19,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 9,
-                    horizontal: 4,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // ----------------------------------------------------------
-          // SCROLLABLE MENU
-          // ----------------------------------------------------------
           Expanded(
             child: Scrollbar(
-              thumbVisibility: true,
               child: ListView(
                 padding: const EdgeInsets.only(
                   left: 10,
@@ -101,15 +106,6 @@ class Sidebar extends StatelessWidget {
                   bottom: 20,
                 ),
                 children: [
-                  // Dashboard
-                  _buildDashboardItem(
-                    context,
-                    menuProvider,
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // Service Groups
                   ...menuProvider.menuGroups.map(
                     (group) => _buildMenuGroup(
                       context,
@@ -120,7 +116,6 @@ class Sidebar extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
-                  // Bottom Menu
                   ...menuProvider.bottomMenuItems.map(
                     (item) => _buildSingleMenuItem(
                       context,
@@ -131,7 +126,6 @@ class Sidebar extends StatelessWidget {
 
                   const SizedBox(height: 4),
 
-                  // Logout
                   _buildLogoutItem(context),
                 ],
               ),
@@ -142,79 +136,20 @@ class Sidebar extends StatelessWidget {
     );
   }
 
-  // ================================================================
-  // DASHBOARD
-  // ================================================================
-
-  Widget _buildDashboardItem(
-    BuildContext context,
-    MenuProvider provider,
-  ) {
-    final dashboard = provider.dashboard;
-    final isSelected = provider.selectedRoute == dashboard.route;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(10),
-      onTap: () {
-        provider.selectRoute(dashboard.route);
-
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          dashboard.route,
-          (route) => false,
-        );
-      },
-      child: Container(
-        height: 46,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Colors.white.withValues(alpha: 0.16)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              dashboard.icon,
-              color: dashboard.color,
-              size: 21,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                dashboard.title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight:
-                      isSelected ? FontWeight.w700 : FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ================================================================
-  // MENU GROUP
-  // ================================================================
-
   Widget _buildMenuGroup(
     BuildContext context,
     MenuProvider provider,
     MenuGroupModel group,
   ) {
-    final expanded = provider.isExpanded(group.title);
+    final expanded = provider.isExpanded(
+      group.title,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 5),
 
-        // Group heading
         InkWell(
           borderRadius: BorderRadius.circular(9),
           onTap: () {
@@ -222,7 +157,9 @@ class Sidebar extends StatelessWidget {
           },
           child: Container(
             height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+            ),
             decoration: BoxDecoration(
               color: expanded
                   ? Colors.white.withValues(alpha: 0.08)
@@ -235,8 +172,11 @@ class Sidebar extends StatelessWidget {
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: group.color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    color: group.color.withValues(
+                      alpha: 0.15,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(8),
                   ),
                   child: Icon(
                     group.icon,
@@ -272,7 +212,6 @@ class Sidebar extends StatelessWidget {
           ),
         ),
 
-        // Subheadings
         if (expanded)
           Padding(
             padding: const EdgeInsets.only(
@@ -296,38 +235,22 @@ class Sidebar extends StatelessWidget {
     );
   }
 
-  // ================================================================
-  // SUB MENU ITEM
-  // ================================================================
-
   Widget _buildSubMenuItem(
     BuildContext context,
     MenuProvider provider,
     MenuItemModel item,
   ) {
-    final isSelected = provider.selectedRoute == item.route;
+    final isSelected =
+        provider.selectedRoute == item.route;
 
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: () {
-        provider.selectRoute(item.route);
-
-        // Navigate only when the route has been registered.
         if (AppRoutes.routes.containsKey(item.route)) {
-          Navigator.pushNamed(
-            context,
-            item.route,
-          );
+          _openRoute(context, item.route);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '${item.title} page will be connected soon.',
-              ),
-              duration: const Duration(seconds: 1),
-              backgroundColor: item.color,
-            ),
-          );
+          provider.selectRoute(item.route);
+          _showUnavailable(context, item);
         }
       },
       child: Container(
@@ -338,7 +261,9 @@ class Sidebar extends StatelessWidget {
           horizontal: 9,
           vertical: 6,
         ),
-        margin: const EdgeInsets.only(bottom: 2),
+        margin: const EdgeInsets.only(
+          bottom: 2,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? item.color.withValues(alpha: 0.16)
@@ -347,7 +272,6 @@ class Sidebar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Small colored indicator
             Container(
               width: 5,
               height: 5,
@@ -379,8 +303,9 @@ class Sidebar extends StatelessWidget {
                       ? Colors.white
                       : const Color(0xFFD5DFEA),
                   fontSize: 12.5,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: isSelected
+                      ? FontWeight.w600
+                      : FontWeight.w400,
                 ),
               ),
             ),
@@ -390,42 +315,29 @@ class Sidebar extends StatelessWidget {
     );
   }
 
-  // ================================================================
-  // SINGLE MENU ITEM
-  // ================================================================
-
   Widget _buildSingleMenuItem(
     BuildContext context,
     MenuProvider provider,
     MenuItemModel item,
   ) {
-    final isSelected = provider.selectedRoute == item.route;
+    final isSelected =
+        provider.selectedRoute == item.route;
 
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       onTap: () {
-        provider.selectRoute(item.route);
-
         if (AppRoutes.routes.containsKey(item.route)) {
-          Navigator.pushNamed(
-            context,
-            item.route,
-          );
+          _openRoute(context, item.route);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '${item.title} page will be connected soon.',
-              ),
-              duration: const Duration(seconds: 1),
-              backgroundColor: item.color,
-            ),
-          );
+          provider.selectRoute(item.route);
+          _showUnavailable(context, item);
         }
       },
       child: Container(
         height: 46,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? Colors.white.withValues(alpha: 0.12)
@@ -439,10 +351,14 @@ class Sidebar extends StatelessWidget {
               color: item.color,
               size: 20,
             ),
+
             const SizedBox(width: 12),
+
             Expanded(
               child: Text(
                 item.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 13.5,
@@ -456,11 +372,9 @@ class Sidebar extends StatelessWidget {
     );
   }
 
-  // ================================================================
-  // LOGOUT
-  // ================================================================
-
-  Widget _buildLogoutItem(BuildContext context) {
+  Widget _buildLogoutItem(
+    BuildContext context,
+  ) {
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       onTap: () {
@@ -468,7 +382,9 @@ class Sidebar extends StatelessWidget {
       },
       child: Container(
         height: 46,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+        ),
         decoration: BoxDecoration(
           color: Colors.red.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
@@ -480,7 +396,9 @@ class Sidebar extends StatelessWidget {
               color: Color(0xFFFF8A80),
               size: 20,
             ),
+
             SizedBox(width: 12),
+
             Text(
               'Logout',
               style: TextStyle(

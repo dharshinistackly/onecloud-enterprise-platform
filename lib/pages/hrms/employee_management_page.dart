@@ -375,6 +375,12 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> {
             ),
             child: Row(
               children: [
+                IconButton(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  icon: const Icon(Icons.arrow_back, color: Color(0xFF0F3D66)),
+                  tooltip: 'Back',
+                ),
+                const SizedBox(width: 4),
                 const Icon(
                   Icons.people_alt_outlined,
                   color: Color(0xFF1677C8),

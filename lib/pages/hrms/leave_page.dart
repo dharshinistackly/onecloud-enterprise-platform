@@ -50,7 +50,7 @@ class LeavePage extends StatelessWidget {
       backgroundColor: const Color(0xFFF1F7FC),
       body: Column(
         children: [
-          _header(),
+          _header(context),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(28),
@@ -171,13 +171,22 @@ class LeavePage extends StatelessWidget {
     );
   }
 
-  Widget _header() {
+  Widget _header(BuildContext context) {
     return Container(
       height: 70,
       padding: const EdgeInsets.symmetric(horizontal: 28),
       color: Colors.white,
-      child: const Row(
+      child: Row(
         children: [
+          IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Color(0xFF0F3D66),
+            ),
+            tooltip: 'Back',
+          ),
+          const SizedBox(width: 4),
           Icon(
             Icons.event_available_outlined,
             color: Color(0xFF1677C8),

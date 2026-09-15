@@ -94,6 +94,12 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
       color: Colors.white,
       child: Row(
         children: [
+          IconButton(
+            onPressed: () => Navigator.of(context).maybePop(),
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF0F3D66)),
+            tooltip: 'Back',
+          ),
+          const SizedBox(width: 4),
           Icon(icon, color: const Color(0xFF1677C8), size: 27),
           const SizedBox(width: 12),
           Text(

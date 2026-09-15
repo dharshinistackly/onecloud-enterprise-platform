@@ -19,7 +19,12 @@ class ContactsPage extends StatelessWidget {
   Widget _buildPage(BuildContext context, List<List<String>> contacts) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F7FC),
-      appBar: AppBar(title: const Text('Contacts'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back',
+        ),title: const Text('Contacts'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
       body: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Contact Management', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
         const Text('Maintain customer contacts and communication details.'),

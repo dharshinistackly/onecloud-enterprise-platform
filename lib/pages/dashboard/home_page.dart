@@ -1,7 +1,6 @@
+// ignore_for_file: uri_does_not_exist
 import 'package:flutter/material.dart';
-
-import '../../routes/app_routes.dart';
-import '../../widgets/sidebar.dart';
+import '../../widgets/app_shell.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,213 +10,205 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool isSidebarOpen = true;
-
-  void _handleLogout() {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.login,
-      (route) => false,
-    );
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1F7FC),
-      body: SafeArea(
-        child: Row(
-          children: [
-            // Sidebar
-            if (isSidebarOpen)
-              Sidebar(
-                onLogout: _handleLogout,
+    return AppShell(
+      title: 'Dashboard',
+      subtitle: 'OneCloud Enterprise',
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 700;
+
+          return Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  isMobile ? 14 : 26,
+                  isMobile ? 14 : 18,
+                  isMobile ? 14 : 26,
+                  14,
+                ),
+                child: _buildWelcomeBanner(isMobile),
               ),
-
-            // Main Content
-            Expanded(
-              child: Column(
-                children: [
-                  // Fixed Header
-                  _buildHeader(),
-
-                  // Scrollable Dashboard Content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
-                      child: _buildDashboardContent(),
-                    ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    isMobile ? 14 : 26,
+                    0,
+                    isMobile ? 14 : 26,
+                    30,
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ============================================================
-  // HEADER
-  // ============================================================
-
-  Widget _buildHeader() {
-    return Container(
-      height: 76,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Menu Button
-          IconButton(
-            onPressed: () {
-              setState(() {
-                isSidebarOpen = !isSidebarOpen;
-              });
-            },
-            icon: Icon(
-              isSidebarOpen ? Icons.menu_open : Icons.menu,
-              color: const Color(0xFF0F3D66),
-              size: 27,
-            ),
-            tooltip: 'Toggle Sidebar',
-          ),
-
-          const SizedBox(width: 12),
-
-          // Page Title
-          const Text(
-            'Dashboard',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF0F3D66),
-            ),
-          ),
-
-          const Spacer(),
-
-          // Notification
-          IconButton(
-            onPressed: () {
-              _showMessage('No new notifications');
-            },
-            icon: const Icon(
-              Icons.notifications_none_rounded,
-              color: Color(0xFF475569),
-            ),
-            tooltip: 'Notifications',
-          ),
-
-          const SizedBox(width: 8),
-
-          // Profile
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'profile') {
-                _showMessage('Profile selected');
-              } else if (value == 'settings') {
-                _showMessage('Settings selected');
-              } else if (value == 'logout') {
-                _handleLogout();
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: 'profile',
-                child: Row(
-                  children: [
-                    Icon(Icons.person_outline),
-                    SizedBox(width: 10),
-                    Text('Profile'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'settings',
-                child: Row(
-                  children: [
-                    Icon(Icons.settings_outlined),
-                    SizedBox(width: 10),
-                    Text('Settings'),
-                  ],
-                ),
-              ),
-              PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout),
-                    SizedBox(width: 10),
-                    Text('Logout'),
-                  ],
+                  child: _buildDashboardContent(),
                 ),
               ),
             ],
-            child: Container(
-              padding: const EdgeInsets.all(9),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAF4FC),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.person_outline,
-                color: Color(0xFF1677C8),
-                size: 23,
-              ),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  // ============================================================
-  // DASHBOARD CONTENT
-  // ============================================================
+  Widget _buildWelcomeBanner(bool isMobile) {
+    return Container(
+      width: double.infinity,
+      height: isMobile ? 158 : 148,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 18 : 26,
+        vertical: isMobile ? 18 : 20,
+      ),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF0F3D66),
+            Color(0xFF1677C8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1677C8).withValues(alpha: 0.20),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 500;
 
-  Widget _buildDashboardContent() {
+          return Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    right: compact ? 8 : 16,
+                  ),
+                  child: _buildWelcomeText(compact),
+                ),
+              ),
+              _cloudCircle(
+                size: compact ? 64 : 78,
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildWelcomeText(bool compact) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Welcome Section
-        const Text(
+        Text(
           'Welcome to OneCloud',
+          maxLines: compact ? 2 : 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF0F3D66),
+            fontSize: compact ? 22 : 27,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
           ),
         ),
 
         const SizedBox(height: 6),
 
-        const Text(
+        Text(
           'Manage your enterprise services from one centralized platform.',
+          maxLines: compact ? 2 : 2,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 15,
-            color: Color(0xFF64748B),
+            fontSize: compact ? 12 : 14,
+            color: Colors.white.withValues(alpha: 0.88),
+            height: 1.35,
           ),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 10),
 
-        // Statistics
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 6,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.22),
+            ),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.verified_outlined,
+                color: Colors.white,
+                size: 14,
+              ),
+              SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  'Enterprise Control Center',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _cloudCircle({double size = 78}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.20),
+          width: 2,
+        ),
+      ),
+      child: Icon(
+        Icons.cloud_outlined,
+        color: Colors.white,
+        size: size * 0.53,
+      ),
+    );
+  }
+
+  Widget _buildDashboardContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         _buildStatistics(),
 
         const SizedBox(height: 28),
 
-        // Platform Overview
         _buildSectionTitle(
           'Platform Overview',
           'Monitor your enterprise services and platform activity.',
@@ -229,7 +220,6 @@ class _HomePageState extends State<HomePage> {
 
         const SizedBox(height: 28),
 
-        // Quick Actions
         _buildSectionTitle(
           'Quick Actions',
           'Frequently used platform operations.',
@@ -241,7 +231,6 @@ class _HomePageState extends State<HomePage> {
 
         const SizedBox(height: 28),
 
-        // System Status
         _buildSectionTitle(
           'System Status',
           'Current status of your OneCloud platform.',
@@ -251,64 +240,58 @@ class _HomePageState extends State<HomePage> {
 
         _buildSystemStatus(),
 
-        const SizedBox(height: 30),
+        const SizedBox(height: 28),
 
-        // Footer
         _buildFooter(),
       ],
     );
   }
-
-  // ============================================================
-  // STATISTICS
-  // ============================================================
 
   Widget _buildStatistics() {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
 
-        int columns;
-
-        if (width >= 1100) {
-          columns = 4;
-        } else if (width >= 700) {
-          columns = 2;
-        } else {
-          columns = 1;
-        }
+        final columns = width >= 1100
+            ? 4
+            : width >= 650
+                ? 2
+                : 1;
 
         return GridView.count(
           crossAxisCount: columns,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: 2.7,
+          childAspectRatio: columns == 1 ? 3.0 : 2.25,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: [
             _buildStatCard(
-              title: 'Total Users',
-              value: '1,248',
-              icon: Icons.people_alt_outlined,
-              iconColor: const Color(0xFF1677C8),
+              'Total Users',
+              '1,248',
+              Icons.people_alt_outlined,
+              const Color(0xFF1677C8),
             ),
+
             _buildStatCard(
-              title: 'Active Tenants',
-              value: '48',
-              icon: Icons.business_outlined,
-              iconColor: const Color(0xFF16A085),
+              'Active Tenants',
+              '48',
+              Icons.business_outlined,
+              const Color(0xFF10B981),
             ),
+
             _buildStatCard(
-              title: 'Active Services',
-              value: '16',
-              icon: Icons.apps_outlined,
-              iconColor: const Color(0xFF8B5CF6),
+              'Active Services',
+              '16',
+              Icons.apps_outlined,
+              const Color(0xFF8B5CF6),
             ),
+
             _buildStatCard(
-              title: 'System Health',
-              value: '99.9%',
-              icon: Icons.health_and_safety_outlined,
-              iconColor: const Color(0xFF10B981),
+              'System Health',
+              '99.9%',
+              Icons.health_and_safety_outlined,
+              const Color(0xFFF59E0B),
             ),
           ],
         );
@@ -316,45 +299,47 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildStatCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color iconColor,
-  }) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
+          color: color.withValues(alpha: 0.45),
+          width: 1.4,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
       child: Row(
         children: [
           Container(
+            width: 5,
+            height: double.infinity,
+            color: color,
+          ),
+
+          const SizedBox(width: 14),
+
+          Container(
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.10),
+              color: color.withValues(alpha: 0.09),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
-              color: iconColor,
-              size: 26,
+              color: color,
+              size: 25,
             ),
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
 
           Expanded(
             child: Column(
@@ -363,130 +348,150 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 13,
                     color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
+
                 const SizedBox(height: 4),
+
                 Text(
                   value,
                   style: const TextStyle(
                     fontSize: 22,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     color: Color(0xFF0F3D66),
                   ),
                 ),
               ],
             ),
           ),
+
+          const SizedBox(width: 10),
         ],
       ),
     );
   }
 
-  // ============================================================
-  // SECTION TITLE
-  // ============================================================
-
-  Widget _buildSectionTitle(String title, String subtitle) {
-    return Column(
+  Widget _buildSectionTitle(
+    String title,
+    String subtitle,
+  ) {
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF0F3D66),
+        Container(
+          width: 4,
+          height: 34,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1677C8),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          subtitle,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Color(0xFF64748B),
+
+        const SizedBox(width: 11),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF0F3D66),
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  // ============================================================
-  // PLATFORM OVERVIEW
-  // ============================================================
-
   Widget _buildPlatformOverview() {
     final services = [
-      {
-        'title': 'HRMS',
-        'subtitle': 'Human Resource Management',
-        'icon': Icons.people_alt_outlined,
-        'color': const Color(0xFF1677C8),
-      },
-      {
-        'title': 'CRM',
-        'subtitle': 'Customer Relationship',
-        'icon': Icons.handshake_outlined,
-        'color': const Color(0xFF16A085),
-      },
-      {
-        'title': 'ERP',
-        'subtitle': 'Enterprise Resources',
-        'icon': Icons.inventory_2_outlined,
-        'color': const Color(0xFF8B5CF6),
-      },
-      {
-        'title': 'Finance',
-        'subtitle': 'Accounting & Finance',
-        'icon': Icons.account_balance_outlined,
-        'color': const Color(0xFFF59E0B),
-      },
-      {
-        'title': 'AI',
-        'subtitle': 'Enterprise Intelligence',
-        'icon': Icons.auto_awesome_outlined,
-        'color': const Color(0xFFEC4899),
-      },
-      {
-        'title': 'Workflow',
-        'subtitle': 'Automation & Processes',
-        'icon': Icons.account_tree_outlined,
-        'color': const Color(0xFF0EA5E9),
-      },
+      (
+        'HRMS',
+        'Human Resource Management',
+        Icons.people_alt_outlined,
+        const Color(0xFF1677C8),
+      ),
+      (
+        'CRM',
+        'Customer Relationship',
+        Icons.handshake_outlined,
+        const Color(0xFF10B981),
+      ),
+      (
+        'ERP',
+        'Enterprise Resources',
+        Icons.inventory_2_outlined,
+        const Color(0xFF8B5CF6),
+      ),
+      (
+        'Finance',
+        'Accounting & Finance',
+        Icons.account_balance_outlined,
+        const Color(0xFFF59E0B),
+      ),
+      (
+        'AI',
+        'Enterprise Intelligence',
+        Icons.auto_awesome_outlined,
+        const Color(0xFFEC4899),
+      ),
+      (
+        'Workflow',
+        'Automation & Processes',
+        Icons.account_tree_outlined,
+        const Color(0xFF0EA5E9),
+      ),
     ];
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        int columns;
-
-        if (constraints.maxWidth >= 1100) {
-          columns = 3;
-        } else if (constraints.maxWidth >= 650) {
-          columns = 2;
-        } else {
-          columns = 1;
-        }
+        final columns = constraints.maxWidth >= 1100
+            ? 3
+            : constraints.maxWidth >= 650
+                ? 2
+                : 1;
 
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: services.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate:
+              SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: 2.5,
+            childAspectRatio:
+                columns == 1 ? 3.0 : 2.15,
           ),
           itemBuilder: (context, index) {
             final service = services[index];
 
             return _buildServiceCard(
-              title: service['title'] as String,
-              subtitle: service['subtitle'] as String,
-              icon: service['icon'] as IconData,
-              color: service['color'] as Color,
+              title: service.$1,
+              subtitle: service.$2,
+              icon: service.$3,
+              color: service.$4,
             );
           },
         );
@@ -501,26 +506,35 @@ class _HomePageState extends State<HomePage> {
     required Color color,
   }) {
     return InkWell(
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(16),
       onTap: () {
         _showMessage('$title service selected');
       },
       child: Container(
-        padding: const EdgeInsets.all(18),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0xFFE2E8F0),
+            color: color.withValues(alpha: 0.38),
+            width: 1.2,
           ),
         ),
         child: Row(
           children: [
             Container(
+              width: 5,
+              height: double.infinity,
+              color: color,
+            ),
+
+            const SizedBox(width: 14),
+
+            Container(
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.10),
+                color: color.withValues(alpha: 0.09),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -530,22 +544,28 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
 
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment:
+                    MainAxisAlignment.center,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                       color: Color(0xFF0F3D66),
                     ),
                   ),
+
                   const SizedBox(height: 4),
+
                   Text(
                     subtitle,
                     maxLines: 1,
@@ -559,10 +579,21 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 15,
-              color: Color(0xFF94A3B8),
+            const SizedBox(width: 8),
+
+            Container(
+              margin: const EdgeInsets.only(right: 12),
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 13,
+                color: color,
+              ),
             ),
           ],
         ),
@@ -570,48 +601,56 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ============================================================
-  // QUICK ACTIONS
-  // ============================================================
-
   Widget _buildQuickActions() {
-    return Wrap(
-      spacing: 14,
-      runSpacing: 14,
-      children: [
-        _buildActionButton(
-          'Add User',
-          Icons.person_add_alt_1_outlined,
-          const Color(0xFF1677C8),
-          () {
-            _showMessage('Add User selected');
-          },
-        ),
-        _buildActionButton(
-          'Manage Tenants',
-          Icons.business_outlined,
-          const Color(0xFF16A085),
-          () {
-            _showMessage('Manage Tenants selected');
-          },
-        ),
-        _buildActionButton(
-          'View Reports',
-          Icons.bar_chart_outlined,
-          const Color(0xFF8B5CF6),
-          () {
-            _showMessage('View Reports selected');
-          },
-        ),
-        _buildActionButton(
-          'System Health',
-          Icons.monitor_heart_outlined,
-          const Color(0xFF10B981),
-          () {
-            _showMessage('System Health selected');
-          },
-        ),
-      ],
+    final actions = [
+      (
+        'Add User',
+        Icons.person_add_alt_1_outlined,
+        const Color(0xFF1677C8),
+      ),
+      (
+        'Manage Tenants',
+        Icons.business_outlined,
+        const Color(0xFF10B981),
+      ),
+      (
+        'View Reports',
+        Icons.bar_chart_outlined,
+        const Color(0xFF8B5CF6),
+      ),
+      (
+        'System Health',
+        Icons.monitor_heart_outlined,
+        const Color(0xFFF59E0B),
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: actions.map((action) {
+            final width = constraints.maxWidth < 450
+                ? constraints.maxWidth
+                : null;
+
+            return SizedBox(
+              width: width,
+              child: _buildActionButton(
+                action.$1,
+                action.$2,
+                action.$3,
+                () {
+                  _showMessage(
+                    '${action.$1} selected',
+                  );
+                },
+              ),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 
@@ -623,33 +662,44 @@ class _HomePageState extends State<HomePage> {
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 13,
+          horizontal: 15,
+          vertical: 11,
         ),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFFE2E8F0),
+            color: color.withValues(alpha: 0.38),
+            width: 1.2,
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 20,
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.09),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 18,
+              ),
             ),
+
             const SizedBox(width: 9),
+
             Text(
               title,
               style: const TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: Color(0xFF334155),
               ),
             ),
@@ -659,50 +709,56 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ============================================================
-  // SYSTEM STATUS
-  // ============================================================
-
   Widget _buildSystemStatus() {
+    final items = [
+      (
+        'Platform Services',
+        'All services operational',
+        Icons.check_circle_outline,
+        const Color(0xFF10B981),
+      ),
+      (
+        'Database',
+        'Connected',
+        Icons.storage_outlined,
+        const Color(0xFF1677C8),
+      ),
+      (
+        'API Gateway',
+        'Operational',
+        Icons.api_outlined,
+        const Color(0xFF8B5CF6),
+      ),
+      (
+        'Security',
+        'Protected',
+        Icons.security_outlined,
+        const Color(0xFFEC4899),
+      ),
+    ];
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
+          color: const Color(0xFFDCE6EF),
         ),
       ),
       child: Column(
         children: [
-          _buildStatusRow(
-            'Platform Services',
-            'All services operational',
-            Icons.check_circle_outline,
-            const Color(0xFF10B981),
-          ),
-          const Divider(height: 24),
-          _buildStatusRow(
-            'Database',
-            'Connected',
-            Icons.storage_outlined,
-            const Color(0xFF1677C8),
-          ),
-          const Divider(height: 24),
-          _buildStatusRow(
-            'API Gateway',
-            'Operational',
-            Icons.api_outlined,
-            const Color(0xFF8B5CF6),
-          ),
-          const Divider(height: 24),
-          _buildStatusRow(
-            'Security',
-            'Protected',
-            Icons.security_outlined,
-            const Color(0xFF16A085),
-          ),
+          for (int i = 0; i < items.length; i++) ...[
+            _buildStatusRow(
+              items[i].$1,
+              items[i].$2,
+              items[i].$3,
+              items[i].$4,
+            ),
+            if (i != items.length - 1)
+              const Divider(height: 24),
+          ],
         ],
       ),
     );
@@ -717,11 +773,11 @@ class _HomePageState extends State<HomePage> {
     return Row(
       children: [
         Container(
-          width: 42,
-          height: 42,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(10),
+            color: color.withValues(alpha: 0.09),
+            borderRadius: BorderRadius.circular(11),
           ),
           child: Icon(
             icon,
@@ -730,23 +786,30 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
 
-        const SizedBox(width: 14),
+        const SizedBox(width: 12),
 
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Text(
                 title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: Color(0xFF334155),
                 ),
               ),
+
               const SizedBox(height: 3),
+
               Text(
                 status,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 12,
                   color: Color(0xFF64748B),
@@ -756,21 +819,23 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
 
+        const SizedBox(width: 8),
+
         Container(
           padding: const EdgeInsets.symmetric(
             horizontal: 10,
-            vertical: 5,
+            vertical: 6,
           ),
           decoration: BoxDecoration(
-            color: const Color(0xFFDCFCE7),
+            color: color.withValues(alpha: 0.09),
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Text(
+          child: Text(
             'Healthy',
             style: TextStyle(
               fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF15803D),
+              fontWeight: FontWeight.w700,
+              color: color,
             ),
           ),
         ),
@@ -778,37 +843,33 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ============================================================
-  // FOOTER
-  // ============================================================
-
   Widget _buildFooter() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 10),
-        child: Text(
-          '© 2026 OneCloud Enterprise Platform',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.blueGrey.shade400,
-          ),
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment:
+              WrapCrossAlignment.center,
+          children: [
+            const Icon(
+              Icons.cloud_outlined,
+              size: 15,
+              color: Color(0xFF94A3B8),
+            ),
+
+            const SizedBox(width: 6),
+
+            Text(
+              '© 2026 OneCloud Enterprise Platform',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.blueGrey.shade400,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
-      ),
-    );
-  }
-
-  // ============================================================
-  // MESSAGE
-  // ============================================================
-
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
       ),
     );
   }
