@@ -21,23 +21,23 @@ class PredictiveAnalyticsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: const Text('Predictive Analytics'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Predictive Analytics', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const Text('AI-driven predictions on churn, demand, and business risk.'),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Predictions Run', '1,280', Icons.auto_graph_outlined, const Color(0xFF0F3D66)),
-            const SizedBox(width: 14),
             _stat('High Risk Accounts', '9', Icons.warning_amber_outlined, Colors.red),
-            const SizedBox(width: 14),
             _stat('Upsell Opportunities', '17', Icons.trending_up, Colors.green),
-            const SizedBox(width: 14),
             _stat('Model Confidence', '88%', Icons.verified_outlined, Colors.indigo),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+          Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
             columns: const [
               DataColumn(label: Text('Account')),
               DataColumn(label: Text('Prediction Type')),
@@ -46,13 +46,13 @@ class PredictiveAnalyticsPage extends StatelessWidget {
               DataColumn(label: Text('Generated On')),
             ],
             rows: predictions.map((a) => DataRow(cells: [for (final item in a) DataCell(Text(item))])).toList(),
-          )))),
+          ))),
         ]),
-      ),
+      )),
     );
   }
 
   Widget _stat(String title, String value, IconData icon, Color color) {
-    return Expanded(child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
+    return SizedBox(width: 220, child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
   }
 }

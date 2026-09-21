@@ -30,25 +30,25 @@ class RetentionPoliciesPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Retention Policies', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Define how long documents are kept before archival.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Policies', '18', Icons.policy_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Active', '15', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Expiring Soon', '2', Icons.timelapse_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Archived', '1', Icons.archive_outlined, const Color(0xFF6C4EB6)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(policies)),
+          _table(policies),
         ]),
-      ),
+      )),
     );
   }
 

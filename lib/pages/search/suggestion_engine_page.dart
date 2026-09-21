@@ -5,54 +5,206 @@ class SuggestionEnginePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final suggestions = [
-      ['Related Products', 'Collaborative Filtering', '182,400', '12.4%', 'Live'],
-      ['Trending Searches', 'Popularity Model', '94,220', '9.8%', 'Live'],
-      ['Personalized Picks', 'User Embeddings', '210,760', '17.2%', 'A/B Testing'],
-      ['Recently Viewed', 'Session History', '38,910', '6.1%', 'Live'],
-      ['New Arrivals', 'Recency Model', '56,300', '4.3%', 'Paused'],
-    ];
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F7FC),
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back),
-          tooltip: 'Back',
-        ),title: const Text('Suggestion Engine'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(
+      backgroundColor: const Color(0xFFF5F9FD),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Suggestion Engine', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-          const Text('Monitor recommendation and suggestion models across the app.'),
-          const SizedBox(height: 20),
-          Row(children: [
-            _stat('Suggestions Served', '582K', Icons.recommend_outlined, Colors.blue),
-            const SizedBox(width: 14),
-            _stat('Click-Through Rate', '11.6%', Icons.ads_click_outlined, Colors.green),
-            const SizedBox(width: 14),
-            _stat('Model Version', 'v4.3', Icons.model_training_outlined, Colors.indigo),
-            const SizedBox(width: 14),
-            _stat('Personalization', 'Enabled', Icons.person_outline, Colors.orange),
-          ]),
-          const SizedBox(height: 20),
-          Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
-            columns: const [
-              DataColumn(label: Text('Suggestion Type')),
-              DataColumn(label: Text('Source')),
-              DataColumn(label: Text('Impressions')),
-              DataColumn(label: Text('CTR')),
-              DataColumn(label: Text('Status')),
-            ],
-            rows: suggestions.map((a) => DataRow(cells: [for (final item in a) DataCell(Text(item))])).toList(),
-          )))),
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Suggestion Engine',
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F3D66),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Manage intelligent suggestions and recommendation rules.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _infoCard(
+                  'Active Rules',
+                  '12',
+                  Icons.rule_folder_outlined,
+                ),
+                _infoCard(
+                  'Suggestions Generated',
+                  '1,248',
+                  Icons.auto_awesome_outlined,
+                ),
+                _infoCard(
+                  'Pending Reviews',
+                  '18',
+                  Icons.pending_actions_outlined,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Suggestion Rules',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0F3D66),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    _ruleTile(
+                      'User Activity Suggestions',
+                      'Suggest actions based on recent user activity.',
+                      true,
+                    ),
+                    _ruleTile(
+                      'Service Recommendations',
+                      'Recommend services based on usage patterns.',
+                      true,
+                    ),
+                    _ruleTile(
+                      'Notification Suggestions',
+                      'Suggest relevant notifications to users.',
+                      false,
+                    ),
+                    _ruleTile(
+                      'Search Suggestions',
+                      'Generate suggestions from recent searches.',
+                      true,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _stat(String title, String value, IconData icon, Color color) {
-    return Expanded(child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
+  static Widget _infoCard(
+    String title,
+    String value,
+    IconData icon,
+  ) {
+    return SizedBox(
+      width: 220,
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: const Color(0xFF1677C8),
+                size: 30,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F3D66),
+                      ),
+                    ),
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _ruleTile(
+    String title,
+    String description,
+    bool enabled,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: const Color(0xFFE0E7EF),
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.auto_awesome,
+            color: Color(0xFF1677C8),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Icon(
+            enabled
+                ? Icons.check_circle
+                : Icons.cancel_outlined,
+            color: enabled
+                ? Colors.green
+                : Colors.grey,
+          ),
+        ],
+      ),
+    );
   }
 }

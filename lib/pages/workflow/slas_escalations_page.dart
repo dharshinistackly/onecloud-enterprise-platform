@@ -30,25 +30,25 @@ class SlasEscalationsPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('SLAs & Escalations', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Monitor service-level compliance and escalation paths.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Active SLAs', '36', Icons.timer_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Within SLA', '29', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('At Risk', '4', Icons.warning_amber_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Breached', '3', Icons.error_outline, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(slas)),
+          _table(slas),
         ]),
-      ),
+      )),
     );
   }
 

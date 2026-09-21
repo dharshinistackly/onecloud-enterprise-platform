@@ -49,14 +49,15 @@ class _SettingsPageState extends State<SettingsPage> {
                   size: 28,
                 ),
                 SizedBox(width: 14),
-                Text(
+                Expanded(
+                  child: Text(
                   'Settings',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF102A43),
                   ),
-                ),
+                )),
               ],
             ),
           ),

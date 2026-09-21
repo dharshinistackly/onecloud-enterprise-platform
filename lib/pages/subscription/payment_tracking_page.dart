@@ -30,25 +30,25 @@ class PaymentTrackingPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Payment Tracking', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Track subscription payments and collections.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Collected', '₹42.6L', Icons.payments_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Paid', '268', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Due', '19', Icons.schedule_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Overdue / Failed', '14', Icons.error_outline, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(payments)),
+          _table(payments),
         ]),
-      ),
+      )),
     );
   }
 

@@ -21,23 +21,23 @@ class RevenueTrackingPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: const Text('Revenue Tracking'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Revenue Tracking', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const Text('Monitor revenue streams across all accounts in real time.'),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Revenue', '₹39.05L', Icons.currency_rupee, const Color(0xFF0F3D66)),
-            const SizedBox(width: 14),
             _stat('MRR', '₹30.75L', Icons.trending_up, Colors.teal),
-            const SizedBox(width: 14),
             _stat('ARR', '₹3.69Cr', Icons.calendar_today_outlined, Colors.indigo),
-            const SizedBox(width: 14),
             _stat('Growth Rate', '+14.2%', Icons.show_chart, Colors.orange),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+          Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
             columns: const [
               DataColumn(label: Text('Account')),
               DataColumn(label: Text('Revenue Stream')),
@@ -46,13 +46,13 @@ class RevenueTrackingPage extends StatelessWidget {
               DataColumn(label: Text('Status')),
             ],
             rows: streams.map((a) => DataRow(cells: [for (final item in a) DataCell(Text(item))])).toList(),
-          )))),
+          ))),
         ]),
-      ),
+      )),
     );
   }
 
   Widget _stat(String title, String value, IconData icon, Color color) {
-    return Expanded(child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
+    return SizedBox(width: 220, child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
   }
 }

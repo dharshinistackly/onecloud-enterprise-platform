@@ -30,25 +30,25 @@ class CostingPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Costing', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Analyze product and project cost variances.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Cost Items', '58', Icons.calculate_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Under Budget', '24', Icons.trending_down_outlined, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('On Budget', '19', Icons.check_circle_outline, const Color(0xFF2E6DB4)),
-            const SizedBox(width: 14),
             _stat('Over Budget', '15', Icons.trending_up_outlined, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(costs)),
+          _table(costs),
         ]),
-      ),
+      )),
     );
   }
 

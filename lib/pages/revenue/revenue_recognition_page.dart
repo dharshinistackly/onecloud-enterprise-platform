@@ -21,23 +21,23 @@ class RevenueRecognitionPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: const Text('Revenue Recognition'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Revenue Recognition', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const Text('Track recognized and deferred revenue in line with compliance standards.'),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Recognized Revenue', '₹32.0L', Icons.check_circle_outline, const Color(0xFF0F3D66)),
-            const SizedBox(width: 14),
             _stat('Deferred Revenue', '₹7.05L', Icons.hourglass_bottom_outlined, Colors.orange),
-            const SizedBox(width: 14),
             _stat('Pending Recognition', '₹1.2L', Icons.pending_actions_outlined, Colors.red),
-            const SizedBox(width: 14),
             _stat('Compliance Rate', '96%', Icons.gavel_outlined, Colors.green),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+          Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
             columns: const [
               DataColumn(label: Text('Contract')),
               DataColumn(label: Text('Recognition Method')),
@@ -46,13 +46,13 @@ class RevenueRecognitionPage extends StatelessWidget {
               DataColumn(label: Text('Status')),
             ],
             rows: contracts.map((a) => DataRow(cells: [for (final item in a) DataCell(Text(item))])).toList(),
-          )))),
+          ))),
         ]),
-      ),
+      )),
     );
   }
 
   Widget _stat(String title, String value, IconData icon, Color color) {
-    return Expanded(child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
+    return SizedBox(width: 220, child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
   }
 }

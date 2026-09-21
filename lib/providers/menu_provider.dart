@@ -503,9 +503,7 @@ class MenuProvider extends ChangeNotifier {
           ],
         ),
 
-        // ------------------------------------------------------------
         // SUBSCRIPTION SERVICE
-        // ------------------------------------------------------------
         MenuGroupModel(
           title: 'Subscription Service',
           icon: Icons.card_membership_outlined,
@@ -633,9 +631,7 @@ class MenuProvider extends ChangeNotifier {
           ],
         ),
 
-        // ------------------------------------------------------------
         // REPORTING & BI
-        // ------------------------------------------------------------
         MenuGroupModel(
           title: 'Reporting & BI',
           icon: Icons.bar_chart_outlined,
@@ -757,9 +753,8 @@ class MenuProvider extends ChangeNotifier {
           ],
         ),
 
-        // ------------------------------------------------------------
         // NOTIFICATION SERVICE
-        // ------------------------------------------------------------
+
         MenuGroupModel(
           title: 'Notification Service',
           icon: Icons.notifications_outlined,

@@ -30,25 +30,25 @@ class DocumentRepositoryPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Document Repository', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Central storage for all company documents.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Documents', '2,486', Icons.folder_open_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Shared', '1,120', Icons.people_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Private', '1,240', Icons.lock_outline, const Color(0xFF2E6DB4)),
-            const SizedBox(width: 14),
             _stat('Restricted', '126', Icons.shield_outlined, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(docs)),
+          _table(docs),
         ]),
-      ),
+      )),
     );
   }
 

@@ -30,25 +30,25 @@ class TriggersPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Triggers', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Event-based triggers that kick off workflows.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Triggers', '89', Icons.bolt_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Enabled', '76', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Disabled', '11', Icons.pause_circle_outline, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Errored', '2', Icons.error_outline, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(triggers)),
+          _table(triggers),
         ]),
-      ),
+      )),
     );
   }
 

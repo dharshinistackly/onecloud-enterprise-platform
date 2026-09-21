@@ -30,25 +30,25 @@ class RenewalsPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Renewals', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Track upcoming subscription renewals.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Upcoming Renewals', '52', Icons.event_repeat_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Auto-Renew', '38', Icons.autorenew, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Pending Action', '9', Icons.hourglass_empty_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Not Renewing', '5', Icons.cancel_outlined, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(renewals)),
+          _table(renewals),
         ]),
-      ),
+      )),
     );
   }
 

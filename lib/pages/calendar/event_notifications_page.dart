@@ -21,23 +21,23 @@ class EventNotificationsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: const Text('Event Notifications'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Event Notifications', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const Text('Configure reminder timing and channels for calendar events.'),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Events with Alerts', '96', Icons.event_note_outlined, const Color(0xFF0F3D66)),
-            const SizedBox(width: 14),
             _stat('Sent This Week', '312', Icons.send_outlined, Colors.blue),
-            const SizedBox(width: 14),
             _stat('Avg Lead Time', '22 min', Icons.timer_outlined, Colors.indigo),
-            const SizedBox(width: 14),
             _stat('Missed Alerts', '4', Icons.notifications_off_outlined, Colors.red),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+          Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
             columns: const [
               DataColumn(label: Text('Event')),
               DataColumn(label: Text('Reminder Timing')),
@@ -46,13 +46,13 @@ class EventNotificationsPage extends StatelessWidget {
               DataColumn(label: Text('Status')),
             ],
             rows: events.map((a) => DataRow(cells: [for (final item in a) DataCell(Text(item))])).toList(),
-          )))),
+          ))),
         ]),
-      ),
+      )),
     );
   }
 
   Widget _stat(String title, String value, IconData icon, Color color) {
-    return Expanded(child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
+    return SizedBox(width: 220, child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
   }
 }

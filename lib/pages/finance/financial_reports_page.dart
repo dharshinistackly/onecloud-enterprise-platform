@@ -30,25 +30,25 @@ class FinancialReportsPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Financial Reports', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Generate and review key financial statements.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Reports', '86', Icons.bar_chart_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Ready', '71', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Generating', '9', Icons.autorenew, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Under Review', '6', Icons.rate_review_outlined, const Color(0xFF6C4EB6)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(reports)),
+          _table(reports),
         ]),
-      ),
+      )),
     );
   }
 

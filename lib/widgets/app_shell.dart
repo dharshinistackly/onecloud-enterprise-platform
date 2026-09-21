@@ -114,11 +114,21 @@ class _AppShellState extends State<AppShell> {
   void _syncSelectedRoute(String? route) {
     if (route == null) return;
 
-    final provider = context.read<MenuProvider>();
+    // NavigatorObserver callbacks (didPush/didReplace/didPop) can fire while
+    // the framework is still in the middle of building/mounting widgets
+    // (e.g. during initial route restoration). Calling notifyListeners()
+    // synchronously in that window throws "setState() or markNeedsBuild()
+    // called during build." Deferring to a post-frame callback runs this
+    // safely once the current frame has finished building.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
 
-    if (provider.selectedRoute != route) {
-      provider.selectRoute(route);
-    }
+      final provider = context.read<MenuProvider>();
+
+      if (provider.selectedRoute != route) {
+        provider.selectRoute(route);
+      }
+    });
   }
 
   @override

@@ -21,23 +21,23 @@ class RelevanceRankingPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: const Text('Relevance Ranking'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Relevance Ranking', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const Text('Tune and evaluate models that rank search results.'),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Ranking Models', '7', Icons.tune_outlined, Colors.blue),
-            const SizedBox(width: 14),
             _stat('Live Models', '4', Icons.check_circle_outline, Colors.green),
-            const SizedBox(width: 14),
             _stat('A/B Tests Running', '2', Icons.science_outlined, Colors.indigo),
-            const SizedBox(width: 14),
             _stat('Avg Relevance Score', '0.87', Icons.star_border_outlined, Colors.orange),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+          Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
             columns: const [
               DataColumn(label: Text('Model Name')),
               DataColumn(label: Text('Version')),
@@ -46,13 +46,13 @@ class RelevanceRankingPage extends StatelessWidget {
               DataColumn(label: Text('Status')),
             ],
             rows: models.map((a) => DataRow(cells: [for (final item in a) DataCell(Text(item))])).toList(),
-          )))),
+          ))),
         ]),
-      ),
+      )),
     );
   }
 
   Widget _stat(String title, String value, IconData icon, Color color) {
-    return Expanded(child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
+    return SizedBox(width: 220, child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
   }
 }

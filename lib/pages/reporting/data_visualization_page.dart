@@ -21,23 +21,23 @@ class DataVisualizationPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: const Text('Data Visualization'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Data Visualization', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const Text('Build and manage charts embedded across BI dashboards.'),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Charts', '96', Icons.insert_chart_outlined, const Color(0xFF0F3D66)),
-            const SizedBox(width: 14),
             _stat('Dashboards', '24', Icons.dashboard_outlined, Colors.indigo),
-            const SizedBox(width: 14),
             _stat('Most Viewed', 'Revenue by Region', Icons.visibility_outlined, Colors.orange),
-            const SizedBox(width: 14),
             _stat('Avg Load Time', '0.9s', Icons.speed_outlined, Colors.teal),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+          Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
             columns: const [
               DataColumn(label: Text('Chart Name')),
               DataColumn(label: Text('Type')),
@@ -46,13 +46,13 @@ class DataVisualizationPage extends StatelessWidget {
               DataColumn(label: Text('Last Modified')),
             ],
             rows: charts.map((a) => DataRow(cells: [for (final item in a) DataCell(Text(item))])).toList(),
-          )))),
+          ))),
         ]),
-      ),
+      )),
     );
   }
 
   Widget _stat(String title, String value, IconData icon, Color color) {
-    return Expanded(child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
+    return SizedBox(width: 220, child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
   }
 }

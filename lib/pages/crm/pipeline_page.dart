@@ -21,7 +21,7 @@ class PipelinePage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: const Text('Pipeline'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      body: SingleChildScrollView(child: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Sales Pipeline', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
         const Text('Monitor opportunities across every sales stage.'),
         const SizedBox(height: 24),
@@ -40,7 +40,7 @@ class PipelinePage extends StatelessWidget {
             ])));
           },
         )),
-      ])),
+      ]))),
     );
   }
 }

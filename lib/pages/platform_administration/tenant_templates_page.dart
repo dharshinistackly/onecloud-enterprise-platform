@@ -68,14 +68,15 @@ class TenantTemplatesPage extends StatelessWidget {
             size: 27,
           ),
           SizedBox(width: 12),
-          Text(
+          Expanded(
+            child: Text(
             'Tenant Templates',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Color(0xFF0F3D66),
             ),
-          ),
+          )),
         ],
       ),
     );

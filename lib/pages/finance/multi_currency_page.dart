@@ -30,25 +30,25 @@ class MultiCurrencyPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Multi-Currency Management', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Manage exchange rates across global transactions.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Currencies Tracked', '12', Icons.currency_exchange_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Updated Today', '10', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Rate Rising', '5', Icons.trending_up_outlined, const Color(0xFF2E6DB4)),
-            const SizedBox(width: 14),
             _stat('Stale Rates', '2', Icons.warning_amber_outlined, const Color(0xFFC98A1B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(rates)),
+          _table(rates),
         ]),
-      ),
+      )),
     );
   }
 
