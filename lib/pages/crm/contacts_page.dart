@@ -25,11 +25,14 @@ class ContactsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: const Text('Contacts'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      body: SingleChildScrollView(child: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Contact Management', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
         const Text('Maintain customer contacts and communication details.'),
         const SizedBox(height: 20),
-        Row(children: [
+        Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
           _stat('Contacts', '126', Icons.contacts_outlined, Colors.blue),
           const SizedBox(width: 14),
           _stat('Active', '118', Icons.person_outline, Colors.green),
@@ -37,11 +40,11 @@ class ContactsPage extends StatelessWidget {
           _stat('Decision Makers', '34', Icons.manage_accounts_outlined, Colors.indigo),
         ]),
         const SizedBox(height: 20),
-        Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+        Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
           columns: const [DataColumn(label: Text('Name')), DataColumn(label: Text('Account')), DataColumn(label: Text('Email')), DataColumn(label: Text('Phone')), DataColumn(label: Text('Role'))],
           rows: contacts.map((c) => DataRow(cells: [for (final item in c) DataCell(Text(item))])).toList(),
-        )))),
-      ])),
+        ))),
+      ]))),
     );
   }
 

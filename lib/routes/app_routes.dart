@@ -41,7 +41,7 @@ import '../pages/erp/procurement_page.dart';
 import '../pages/erp/production_page.dart';
 import '../pages/erp/sales_orders_page.dart';
 import '../pages/erp/dispatch_page.dart';
-import '../pages/erp/asset_management_page.dart' as erp;
+import '../pages/erp/asset_management_page.dart';
 import '../pages/erp/maintenance_page.dart';
 import '../pages/erp/vendors_page.dart';
 
@@ -375,7 +375,7 @@ procurement: (context) => const ProcurementPage(),
 production: (context) => const ProductionPage(),
 salesOrders: (context) => const SalesOrdersPage(),
 dispatch: (context) => const DispatchPage(),
-erpAssetManagement: (context) => const erp.AssetManagementPage(),
+erpAssetManagement: (context) => const ErpAssetManagementPage(),
 maintenance: (context) => const MaintenancePage(),
 vendors: (context) => const VendorsPage(),
 

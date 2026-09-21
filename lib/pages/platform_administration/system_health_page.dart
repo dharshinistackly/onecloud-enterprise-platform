@@ -71,14 +71,15 @@ class SystemHealthPage extends StatelessWidget {
             size: 27,
           ),
           SizedBox(width: 12),
-          Text(
+          Expanded(
+            child: Text(
             'System Health',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Color(0xFF0F3D66),
             ),
-          ),
+          )),
         ],
       ),
     );
@@ -92,36 +93,59 @@ class SystemHealthPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: const Row(
-        children: [
-          Icon(
-            Icons.check_circle,
-            color: Color(0xFF10B981),
-            size: 45,
-          ),
-          SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'All Systems Operational',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF0F3D66),
-                ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final content = const [
+            Text(
+              'All Systems Operational',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F3D66),
               ),
-              SizedBox(height: 5),
-              Text(
-                'Last checked: Just now',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF64748B),
+            ),
+            SizedBox(height: 5),
+            Text(
+              'Last checked: Just now',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ];
+
+          if (constraints.maxWidth < 420) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.check_circle,
+                  color: Color(0xFF10B981),
+                  size: 45,
+                ),
+                const SizedBox(height: 12),
+                ...content,
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              const Icon(
+                Icons.check_circle,
+                color: Color(0xFF10B981),
+                size: 45,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: content,
                 ),
               ),
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }

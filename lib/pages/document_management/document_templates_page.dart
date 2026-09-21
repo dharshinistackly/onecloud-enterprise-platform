@@ -30,25 +30,25 @@ class DocumentTemplatesPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Document Templates', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Reusable templates for common document types.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Templates', '58', Icons.description_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Active', '51', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Draft', '4', Icons.edit_note_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Deprecated', '3', Icons.archive_outlined, const Color(0xFF6C4EB6)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(templates)),
+          _table(templates),
         ]),
-      ),
+      )),
     );
   }
 

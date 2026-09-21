@@ -101,8 +101,8 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> {
               color: Color(0xFF0F3D66),
             ),
           ),
-          content: SizedBox(
-            width: 450,
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 450),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -293,7 +293,8 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> {
     IconData icon,
     Color iconColor,
   ) {
-    return Expanded(
+    return SizedBox(
+      width: 240,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -417,7 +418,7 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -438,7 +439,9 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Row(
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
                     children: [
                       _summaryCard(
                         'Total Employees',
@@ -446,21 +449,18 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> {
                         Icons.people_outline,
                         const Color(0xFF1677C8),
                       ),
-                      const SizedBox(width: 16),
                       _summaryCard(
                         'Active Employees',
                         '${_employees.where((e) => e['status'] == 'Active').length}',
                         Icons.verified_user_outlined,
                         Colors.green,
                       ),
-                      const SizedBox(width: 16),
                       _summaryCard(
                         'On Leave',
                         '${_employees.where((e) => e['status'] == 'On Leave').length}',
                         Icons.event_busy_outlined,
                         Colors.orange,
                       ),
-                      const SizedBox(width: 16),
                       _summaryCard(
                         'Departments',
                         '${_employees.map((e) => e['department']).toSet().length}',
@@ -479,67 +479,138 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> {
                         color: const Color(0xFFE2E8F0),
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 44,
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: (_) {
-                                setState(() {});
-                              },
-                              decoration: InputDecoration(
-                                hintText:
-                                    'Search by name, ID, department or role...',
-                                prefixIcon: const Icon(
-                                  Icons.search,
-                                  color: Color(0xFF64748B),
-                                ),
-                                suffixIcon: _searchController.text.isNotEmpty
-                                    ? IconButton(
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          setState(() {});
-                                        },
-                                        icon: const Icon(Icons.clear),
-                                      )
-                                    : null,
-                                filled: true,
-                                fillColor: const Color(0xFFF8FAFC),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFFE2E8F0),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isMobile = constraints.maxWidth < 650;
+
+                        if (isMobile) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(
+                                height: 44,
+                                child: TextField(
+                                  controller: _searchController,
+                                  onChanged: (_) {
+                                    setState(() {});
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'Search by name, ID, department or role...',
+                                    prefixIcon: const Icon(
+                                      Icons.search,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                    suffixIcon: _searchController.text.isNotEmpty
+                                        ? IconButton(
+                                            onPressed: () {
+                                              _searchController.clear();
+                                              setState(() {});
+                                            },
+                                            icon: const Icon(Icons.clear),
+                                          )
+                                        : null,
+                                    filled: true,
+                                    fillColor: const Color(0xFFF8FAFC),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE2E8F0),
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE2E8F0),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFFE2E8F0),
+                              ),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                height: 44,
+                                child: ElevatedButton.icon(
+                                  onPressed: _showAddEmployeeDialog,
+                                  icon: const Icon(Icons.add),
+                                  label: const Text('Add Employee'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1677C8),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 44,
+                                child: TextField(
+                                  controller: _searchController,
+                                  onChanged: (_) {
+                                    setState(() {});
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'Search by name, ID, department or role...',
+                                    prefixIcon: const Icon(
+                                      Icons.search,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                    suffixIcon: _searchController.text.isNotEmpty
+                                        ? IconButton(
+                                            onPressed: () {
+                                              _searchController.clear();
+                                              setState(() {});
+                                            },
+                                            icon: const Icon(Icons.clear),
+                                          )
+                                        : null,
+                                    filled: true,
+                                    fillColor: const Color(0xFFF8FAFC),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE2E8F0),
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE2E8F0),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        ElevatedButton.icon(
-                          onPressed: _showAddEmployeeDialog,
-                          icon: const Icon(Icons.add),
-                          label: const Text('Add Employee'),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(160, 44),
-                            backgroundColor: const Color(0xFF1677C8),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                            const SizedBox(width: 16),
+                            ElevatedButton.icon(
+                              onPressed: _showAddEmployeeDialog,
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add Employee'),
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(160, 44),
+                                backgroundColor: const Color(0xFF1677C8),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ],
+                          ],
+                        );
+                      },
                     ),
                   ),
+                
                   const SizedBox(height: 20),
                   Container(
                     width: double.infinity,
@@ -737,7 +808,7 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> {
                                     ),
                                   ],
                                 );
-                              }).toList(),
+                                                            }).toList(),
                             ),
                           ),
                       ],
@@ -752,3 +823,4 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> {
     );
   }
 }
+      

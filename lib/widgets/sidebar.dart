@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../providers/menu_provider.dart';
 import '../routes/app_routes.dart';
 
-class Sidebar extends StatelessWidget {
+
+class Sidebar extends StatefulWidget {
   final VoidCallback? onLogout;
   final VoidCallback? onItemSelected;
   final ValueChanged<String>? onRouteSelected;
@@ -15,6 +15,23 @@ class Sidebar extends StatelessWidget {
     this.onItemSelected,
     this.onRouteSelected,
   });
+
+  @override
+  State<Sidebar> createState() => _SidebarState();
+}
+
+class _SidebarState extends State<Sidebar> {
+  // Owned by this State so it is created once and properly disposed,
+  // rather than being recreated on every StatelessWidget build (which was
+  // leaving the Scrollbar without a controller attached to a live
+  // ScrollPosition on the first frame).
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   void _openRoute(
     BuildContext context,
@@ -27,8 +44,8 @@ class Sidebar extends StatelessWidget {
     final provider = context.read<MenuProvider>();
     provider.selectRoute(route);
 
-    onItemSelected?.call();
-    onRouteSelected?.call(route);
+    widget.onItemSelected?.call();
+    widget.onRouteSelected?.call(route);
   }
 
   void _showUnavailable(
@@ -99,7 +116,10 @@ class Sidebar extends StatelessWidget {
 
           Expanded(
             child: Scrollbar(
+              controller: _scrollController,
+              thumbVisibility: false,
               child: ListView(
+                controller: _scrollController,
                 padding: const EdgeInsets.only(
                   left: 10,
                   right: 10,
@@ -378,7 +398,7 @@ class Sidebar extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       onTap: () {
-        onLogout?.call();
+        widget.onLogout?.call();
       },
       child: Container(
         height: 46,

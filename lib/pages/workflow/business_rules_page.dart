@@ -30,25 +30,25 @@ class BusinessRulesPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Business Rules', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Configure conditional logic across modules.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Rules', '47', Icons.rule_folder_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Active', '39', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Inactive', '8', Icons.pause_circle_outline, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Conflicts', '2', Icons.error_outline, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(rules)),
+          _table(rules),
         ]),
-      ),
+      )),
     );
   }
 

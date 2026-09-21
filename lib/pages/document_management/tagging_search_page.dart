@@ -30,25 +30,25 @@ class TaggingSearchPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Tagging & Search', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Organize and quickly locate documents by tag.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Tagged Documents', '2,140', Icons.label_outline, _navy),
-            const SizedBox(width: 14),
             _stat('Indexed', '2,046', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Pending Index', '82', Icons.hourglass_empty_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Unique Tags', '318', Icons.sell_outlined, const Color(0xFF2E6DB4)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(tags)),
+          _table(tags),
         ]),
-      ),
+      )),
     );
   }
 

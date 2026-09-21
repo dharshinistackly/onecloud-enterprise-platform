@@ -30,25 +30,25 @@ class FileUploadDownloadPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('File Upload / Download', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Monitor file transfer activity across the system.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Transfers', '1,340', Icons.swap_vert_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Completed', '1,268', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('In Progress', '58', Icons.autorenew, const Color(0xFF2E6DB4)),
-            const SizedBox(width: 14),
             _stat('Failed', '14', Icons.error_outline, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(transfers)),
+          _table(transfers),
         ]),
-      ),
+      )),
     );
   }
 

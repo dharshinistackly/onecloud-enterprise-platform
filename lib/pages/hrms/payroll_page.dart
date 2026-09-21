@@ -47,7 +47,7 @@ class PayrollPage extends StatelessWidget {
           _header(context),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -65,14 +65,11 @@ class PayrollPage extends StatelessWidget {
                     style: TextStyle(color: Color(0xFF64748B)),
                   ),
                   const SizedBox(height: 24),
-                  Row(
+                  Wrap(
                     children: [
                       _summary('Employees', '124', Icons.people_outline, const Color(0xFF1677C8)),
-                      const SizedBox(width: 16),
                       _summary('Monthly Payroll', '₹68.4L', Icons.payments_outlined, Colors.green),
-                      const SizedBox(width: 16),
                       _summary('Processed', '118', Icons.check_circle_outline, Colors.green),
-                      const SizedBox(width: 16),
                       _summary('Pending', '6', Icons.pending_outlined, Colors.orange),
                     ],
                   ),
@@ -131,7 +128,8 @@ class PayrollPage extends StatelessWidget {
   }
 
   Widget _summary(String title, String value, IconData icon, Color color) {
-    return Expanded(
+    return SizedBox(
+      width: 240,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -186,14 +184,15 @@ class PayrollPage extends StatelessWidget {
             size: 28,
           ),
           SizedBox(width: 12),
-          Text(
+          Expanded(
+            child: Text(
             'HRMS Service',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0F3D66),
             ),
-          ),
+          )),
         ],
       ),
     );

@@ -30,25 +30,25 @@ class TaskManagementPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Task Management', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Assign, track and close tasks across teams.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Tasks', '318', Icons.checklist_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Completed', '212', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('In Progress', '84', Icons.autorenew, const Color(0xFF2E6DB4)),
-            const SizedBox(width: 14),
             _stat('Overdue', '22', Icons.warning_amber_outlined, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(tasks)),
+          _table(tasks),
         ]),
-      ),
+      )),
     );
   }
 

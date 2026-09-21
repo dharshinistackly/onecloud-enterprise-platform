@@ -30,25 +30,25 @@ class WorkflowBuilderPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Workflow Builder', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Design and publish visual automation workflows.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Workflows', '64', Icons.account_tree_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Published', '48', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Draft', '13', Icons.edit_note_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Archived', '3', Icons.archive_outlined, const Color(0xFF6C4EB6)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(flows)),
+          _table(flows),
         ]),
-      ),
+      )),
     );
   }
 

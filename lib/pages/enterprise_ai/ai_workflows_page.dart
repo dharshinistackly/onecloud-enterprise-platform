@@ -21,23 +21,23 @@ class AiWorkflowsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: const Text('AI Workflows'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('AI Workflows', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const Text('Automated multi-step workflows powered by AI models.'),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Workflows', '19', Icons.account_tree_outlined, const Color(0xFF0F3D66)),
-            const SizedBox(width: 14),
             _stat('Active Workflows', '16', Icons.play_circle_outline, Colors.green),
-            const SizedBox(width: 14),
             _stat('Runs Today', '284', Icons.bolt_outlined, Colors.orange),
-            const SizedBox(width: 14),
             _stat('Avg Success Rate', '96.5%', Icons.verified_outlined, Colors.indigo),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+          Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
             columns: const [
               DataColumn(label: Text('Workflow Name')),
               DataColumn(label: Text('Components')),
@@ -46,13 +46,13 @@ class AiWorkflowsPage extends StatelessWidget {
               DataColumn(label: Text('Status')),
             ],
             rows: workflows.map((a) => DataRow(cells: [for (final item in a) DataCell(Text(item))])).toList(),
-          )))),
+          ))),
         ]),
-      ),
+      )),
     );
   }
 
   Widget _stat(String title, String value, IconData icon, Color color) {
-    return Expanded(child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
+    return SizedBox(width: 220, child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
   }
 }

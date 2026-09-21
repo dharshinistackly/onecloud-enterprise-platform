@@ -53,7 +53,7 @@ class LeavePage extends StatelessWidget {
           _header(context),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -71,14 +71,11 @@ class LeavePage extends StatelessWidget {
                     style: TextStyle(color: Color(0xFF64748B)),
                   ),
                   const SizedBox(height: 24),
-                  Row(
+                  Wrap(
                     children: [
                       _summary('Total Requests', '24', Icons.list_alt, const Color(0xFF1677C8)),
-                      const SizedBox(width: 16),
                       _summary('Approved', '18', Icons.check_circle_outline, Colors.green),
-                      const SizedBox(width: 16),
                       _summary('Pending', '4', Icons.pending_outlined, Colors.orange),
-                      const SizedBox(width: 16),
                       _summary('Rejected', '2', Icons.cancel_outlined, Colors.red),
                     ],
                   ),
@@ -138,7 +135,8 @@ class LeavePage extends StatelessWidget {
   }
 
   Widget _summary(String title, String value, IconData icon, Color color) {
-    return Expanded(
+    return SizedBox(
+      width: 240,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -193,14 +191,15 @@ class LeavePage extends StatelessWidget {
             size: 28,
           ),
           SizedBox(width: 12),
-          Text(
+          Expanded(
+            child: Text(
             'HRMS Service',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0F3D66),
             ),
-          ),
+          )),
         ],
       ),
     );

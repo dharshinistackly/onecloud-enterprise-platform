@@ -30,25 +30,25 @@ class LicenseAllocationPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('License Allocation', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Distribute and track seat allocation per tenant.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Licenses', '1,842', Icons.badge_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Assigned', '1,340', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Unassigned', '502', Icons.person_outline, const Color(0xFF2E6DB4)),
-            const SizedBox(width: 14),
             _stat('Fully Allocated', '38', Icons.done_all_outlined, const Color(0xFFC98A1B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(allocations)),
+          _table(allocations),
         ]),
-      ),
+      )),
     );
   }
 

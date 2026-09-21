@@ -30,25 +30,25 @@ class TaxManagementPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Tax Management', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Manage GST, TDS and income tax filings.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Filings', '52', Icons.description_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Filed', '44', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Pending', '6', Icons.schedule_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Under Review', '2', Icons.fact_check_outlined, const Color(0xFF6C4EB6)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(filings)),
+          _table(filings),
         ]),
-      ),
+      )),
     );
   }
 

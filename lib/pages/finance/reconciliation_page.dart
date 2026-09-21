@@ -30,25 +30,25 @@ class ReconciliationPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Reconciliation', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Match ledger balances against bank statements.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Accounts', '38', Icons.sync_alt_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Matched', '29', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Mismatch', '7', Icons.error_outline, const Color(0xFFC0392B)),
-            const SizedBox(width: 14),
             _stat('Pending', '2', Icons.schedule_outlined, const Color(0xFFC98A1B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(items)),
+          _table(items),
         ]),
-      ),
+      )),
     );
   }
 

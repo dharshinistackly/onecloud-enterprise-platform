@@ -30,25 +30,25 @@ class AuditTrailsPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Audit Trails', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Complete log of document activity and access.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Events', '9,420', Icons.receipt_long_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Logged', '9,381', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Flagged', '32', Icons.flag_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Suspicious', '7', Icons.gpp_maybe_outlined, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(logs)),
+          _table(logs),
         ]),
-      ),
+      )),
     );
   }
 

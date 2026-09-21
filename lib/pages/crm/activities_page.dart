@@ -21,11 +21,14 @@ class ActivitiesPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: const Text('Activities'), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      body: SingleChildScrollView(child: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Activities', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
         const Text('Track meetings, calls, tasks and customer interactions.'),
         const SizedBox(height: 20),
-        Row(children: [
+        Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
           _stat('Total Activities', '86', Icons.event_note_outlined, Colors.blue),
           const SizedBox(width: 14),
           _stat('Completed', '52', Icons.task_alt, Colors.green),
@@ -35,15 +38,15 @@ class ActivitiesPage extends StatelessWidget {
           _stat('Pending', '7', Icons.pending_actions, Colors.orange),
         ]),
         const SizedBox(height: 20),
-        Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+        Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
           columns: const [DataColumn(label: Text('Activity')), DataColumn(label: Text('Contact')), DataColumn(label: Text('Date & Time')), DataColumn(label: Text('Type')), DataColumn(label: Text('Status'))],
           rows: activities.map((a) => DataRow(cells: [for (final item in a) DataCell(Text(item))])).toList(),
-        )))),
-      ])),
+        ))),
+      ]))),
     );
   }
 
   Widget _stat(String title, String value, IconData icon, Color color) {
-    return Expanded(child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
+    return SizedBox(width: 220, child: Card(elevation: 0, child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, color: color, size: 29), const SizedBox(width: 10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.grey)), Text(value, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold))])]))));
   }
 }

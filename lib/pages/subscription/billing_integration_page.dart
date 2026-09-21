@@ -30,25 +30,25 @@ class BillingIntegrationPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Billing Integration', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Manage connected payment gateways and billing sync.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Connected Gateways', '4', Icons.account_balance_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Total Transactions', '1,820', Icons.receipt_long_outlined, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Total Volume', '₹52.9L', Icons.trending_up_outlined, const Color(0xFF2E6DB4)),
-            const SizedBox(width: 14),
             _stat('Disconnected', '1', Icons.link_off_outlined, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(gateways)),
+          _table(gateways),
         ]),
-      ),
+      )),
     );
   }
 

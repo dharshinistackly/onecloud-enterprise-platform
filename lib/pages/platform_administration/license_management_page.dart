@@ -71,27 +71,37 @@ class LicenseManagementPage extends StatelessWidget {
             size: 27,
           ),
           SizedBox(width: 12),
-          Text(
+          Expanded(
+            child: Text(
             'License Management',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Color(0xFF0F3D66),
             ),
-          ),
+          )),
         ],
       ),
     );
   }
 
   Widget _summaryCards() {
-    return Row(
+    return Wrap(
+      spacing: 16,
+      runSpacing: 16,
       children: [
-        Expanded(child: _summary('Total Licenses', '200')),
-        const SizedBox(width: 16),
-        Expanded(child: _summary('Assigned', '160')),
-        const SizedBox(width: 16),
-        Expanded(child: _summary('Available', '40')),
+        SizedBox(
+          width: 220,
+          child: _summary('Total Licenses', '200'),
+        ),
+        SizedBox(
+          width: 220,
+          child: _summary('Assigned', '160'),
+        ),
+        SizedBox(
+          width: 220,
+          child: _summary('Available', '40'),
+        ),
       ],
     );
   }

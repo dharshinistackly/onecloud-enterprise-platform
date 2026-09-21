@@ -30,25 +30,25 @@ class ApprovalsPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Approvals', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Review and act on pending approval requests.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Requests', '210', Icons.fact_check_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Approved', '168', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Pending', '31', Icons.hourglass_empty_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Rejected', '11', Icons.cancel_outlined, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(approvals)),
+          _table(approvals),
         ]),
-      ),
+      )),
     );
   }
 

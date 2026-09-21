@@ -100,7 +100,7 @@ class _LeadsPageState extends State<LeadsPage> {
         backgroundColor: const Color(0xFF0F3D66),
         foregroundColor: Colors.white,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,14 +109,14 @@ class _LeadsPageState extends State<LeadsPage> {
             const SizedBox(height: 6),
             const Text('Track, qualify and manage CRM leads.'),
             const SizedBox(height: 22),
-            Row(
-              children: [
+            Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
                 _stat('Total Leads', '${leads.length}', Icons.people_alt_outlined, Colors.blue),
-                const SizedBox(width: 14),
-                _stat('Qualified', '${leads.where((e) => e['status'] == 'Qualified').length}', Icons.verified_outlined, Colors.indigo),
-                const SizedBox(width: 14),
-                _stat('Converted', '${leads.where((e) => e['status'] == 'Converted').length}', Icons.check_circle_outline, Colors.green),
-                const Spacer(),
+                    _stat('Qualified', '${leads.where((e) => e['status'] == 'Qualified').length}', Icons.verified_outlined, Colors.indigo),
+                    _stat('Converted', '${leads.where((e) => e['status'] == 'Converted').length}', Icons.check_circle_outline, Colors.green),
+                
                 ElevatedButton.icon(onPressed: showAddLeadDialog, icon: const Icon(Icons.add), label: const Text('Add Lead')),
               ],
             ),
@@ -162,12 +162,13 @@ class _LeadsPageState extends State<LeadsPage> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 
   Widget _stat(String title, String value, IconData icon, Color color) {
-    return Expanded(
+    return SizedBox(
+      width: 220,
       child: Card(
         elevation: 0,
         child: Padding(

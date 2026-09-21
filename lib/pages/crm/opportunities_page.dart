@@ -52,16 +52,16 @@ class OpportunitiesPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
         ),title: Text(title), backgroundColor: const Color(0xFF0F3D66), foregroundColor: Colors.white),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [Icon(icon, color: const Color(0xFF1677C8), size: 34), const SizedBox(width: 12), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)), Text(subtitle)])]),
           const SizedBox(height: 20),
           Row(children: [for (int i = 0; i < cards.length; i++) ...[Expanded(child: cards[i]), if (i != cards.length - 1) const SizedBox(width: 14)]]),
           const SizedBox(height: 20),
-          Expanded(child: Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: table))),
+          Card(elevation: 0, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: table)),
         ]),
-      ),
+      )),
     );
   }
 

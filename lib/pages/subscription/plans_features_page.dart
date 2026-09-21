@@ -30,25 +30,25 @@ class PlansFeaturesPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Plans & Features', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Manage subscription plans and their feature sets.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Plans', '9', Icons.dashboard_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Active', '7', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Deprecated', '2', Icons.archive_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Total Tenants', '299', Icons.apartment_outlined, const Color(0xFF2E6DB4)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(plans)),
+          _table(plans),
         ]),
-      ),
+      )),
     );
   }
 

@@ -30,25 +30,25 @@ class LicenseKeysPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('License Keys', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _navy)),
           const Text('Generate, issue and revoke license keys.', style: TextStyle(color: Colors.black54)),
           const SizedBox(height: 20),
-          Row(children: [
+          Wrap(
+            spacing: 14,
+            runSpacing: 14,
+            children: [
             _stat('Total Keys', '299', Icons.vpn_key_outlined, _navy),
-            const SizedBox(width: 14),
             _stat('Active', '268', Icons.check_circle_outline, const Color(0xFF1E8E5A)),
-            const SizedBox(width: 14),
             _stat('Expiring Soon', '19', Icons.timelapse_outlined, const Color(0xFFC98A1B)),
-            const SizedBox(width: 14),
             _stat('Revoked', '12', Icons.block_outlined, const Color(0xFFC0392B)),
           ]),
           const SizedBox(height: 20),
-          Expanded(child: _table(keys)),
+          _table(keys),
         ]),
-      ),
+      )),
     );
   }
 
