@@ -63,6 +63,10 @@ flutter:
     - assets/onecloud_login_background.png
     - assets/onecloud_logo.png
     - assets/cloud.png
+    - assets/logo_mark.png
+    - assets/stackly_logo_light.png
+    - assets/auth_arc_bg.png
+    - assets/stackly_logo.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
