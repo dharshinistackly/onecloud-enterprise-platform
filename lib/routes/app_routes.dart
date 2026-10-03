@@ -5,6 +5,7 @@ import '../auth/login_page.dart';
 import '../auth/forgot_password_page.dart';
 import '../auth/signup_page.dart';
 import '../auth/social_login_page.dart';
+import '../auth/mobile_welcome_page.dart';
 
 import '../pages/dashboard/home_page.dart';
 
@@ -174,6 +175,7 @@ class AppRoutes {
   static const String signup = '/signup';
   static const String socialLogin = '/social-login';
   static const String userManagement = '/user-management';
+  static const String mobileWelcome = '/mobile-welcome';
 
   static const String globalSettings = '/global-settings';
   static const String platformConfig = '/platform-config';
@@ -338,6 +340,7 @@ static const String settings = '/settings';
     forgotPassword: (context) => const ForgotPasswordPage(),
     signup: (context) => const SignupPage(),
     socialLogin: (context) => const SocialLoginPage(),
+    mobileWelcome: (context) => const MobileWelcomePage(),
     
 
     globalSettings: (context) => const GlobalSettingsPage(),

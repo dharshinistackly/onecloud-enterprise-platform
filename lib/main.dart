@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/menu_provider.dart';
 import 'routes/app_routes.dart';
+import 'auth/start_page.dart';
 
 void main() {
   runApp(
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'OneCloud Enterprise Platform',
-      initialRoute: AppRoutes.login,
+      home: const StartPage(),
       routes: AppRoutes.routes,
     );
   }

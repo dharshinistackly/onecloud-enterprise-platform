@@ -198,252 +198,441 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  Widget _buildHeader({
-    required bool isMobile,
-    required bool isTablet,
-  }) {
-    final searchWidth = isTablet ? 145.0 : 210.0;
-
-    return Container(
-      height: 76,
-      padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 8 : 20,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: const Border(
-          bottom: BorderSide(
-            color: Color(0xFFE2E8F0),
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () {
-              if (isMobile || isTablet) {
-                _scaffoldKey.currentState?.openDrawer();
-              } else {
-                setState(() {
-                  _desktopSidebarOpen = !_desktopSidebarOpen;
-                });
-              }
-            },
-            icon: Icon(
-              isMobile || isTablet
-                  ? Icons.menu
-                  : (_desktopSidebarOpen
-                      ? Icons.menu_open
-                      : Icons.menu),
-              color: const Color(0xFF0F3D66),
-              size: 27,
+Widget _buildHeader({
+  required bool isMobile,
+  required bool isTablet,
+}) {
+  if (isMobile) {
+    return Column(
+      children: [
+        Container(
+          height: 86,
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(
+                color: Color(0xFFE2E8F0),
+              ),
             ),
-            tooltip: 'Menu',
           ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF0F3D66),
+          child: Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFD9E0E7),
                   ),
                 ),
-                if (widget.subtitle.isNotEmpty)
-                  Text(
-                    widget.subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF64748B),
-                      fontWeight: FontWeight.w500,
+                child: IconButton(
+                  onPressed: () {
+                    _scaffoldKey.currentState?.openDrawer();
+                  },
+                  icon: const Icon(
+                    Icons.menu_rounded,
+                    color: Color(0xFF263746),
+                    size: 25,
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 14),
+
+              Expanded(
+                child: Image.asset(
+                  'assets/stackly_logo.png',
+                  height: 34,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.centerLeft,
+                ),
+              ),
+
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFD9E0E7),
+                      ),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'No new notifications',
+                              ),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                      },
+                      icon: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: Color(0xFF536576),
+                        size: 25,
+                      ),
                     ),
                   ),
-              ],
-            ),
-          ),
-          if (!isMobile) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: const Color(0xFFD6E8FA),
-                ),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.cloud_done_outlined,
-                    size: 17,
-                    color: Color(0xFF1677C8),
-                  ),
-                  SizedBox(width: 5),
-                  Text(
-                    'Cloud Connected',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1677C8),
+                  Positioned(
+                    top: 4,
+                    right: 2,
+                    child: Container(
+                      width: 7,
+                      height: 7,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE63946),
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: searchWidth,
-              height: 40,
-              child: TextField(
-                onSubmitted: _search,
-                decoration: InputDecoration(
-                  hintText: 'Search...',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFF94A3B8),
-                    fontSize: 12,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    color: Color(0xFF64748B),
-                    size: 19,
-                  ),
-                  filled: true,
-                  fillColor: const Color(0xFFF4F8FC),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE2E8F0),
+
+              const SizedBox(width: 10),
+
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'settings') {
+                    _navigateContent(AppRoutes.settings);
+                  } else if (value == 'logout') {
+                    _logout();
+                  }
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: 'settings',
+                    child: Row(
+                      children: [
+                        Icon(Icons.settings_outlined),
+                        SizedBox(width: 10),
+                        Text('Settings'),
+                      ],
                     ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE2E8F0),
+                  PopupMenuDivider(),
+                  PopupMenuItem(
+                    value: 'logout',
+                    child: Row(
+                      children: [
+                        Icon(Icons.logout),
+                        SizedBox(width: 10),
+                        Text('Logout'),
+                      ],
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF1677C8),
+                ],
+                child: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF72C7A9),
+                        Color(0xFF367FA0),
+                      ],
                     ),
                   ),
-                ),
-              ),
-            ),
-          ],
-          const SizedBox(width: 4),
-          IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(
-                  const SnackBar(
-                    content: Text('No new notifications'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-            },
-            icon: const Icon(
-              Icons.notifications_none_rounded,
-              color: Color(0xFF475569),
-              size: 25,
-            ),
-            tooltip: 'Notifications',
-          ),
-          const SizedBox(width: 2),
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'profile') {
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(
-                    const SnackBar(
-                      content: Text('Profile selected'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-              } else if (value == 'settings') {
-                _navigateContent(AppRoutes.settings);
-              } else if (value == 'logout') {
-                _logout();
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: 'profile',
-                child: Row(
-                  children: [
-                    Icon(Icons.person_outline),
-                    SizedBox(width: 10),
-                    Text('Profile'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'settings',
-                child: Row(
-                  children: [
-                    Icon(Icons.settings_outlined),
-                    SizedBox(width: 10),
-                    Text('Settings'),
-                  ],
-                ),
-              ),
-              PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout),
-                    SizedBox(width: 10),
-                    Text('Logout'),
-                  ],
                 ),
               ),
             ],
-            child: Container(
-              padding: const EdgeInsets.all(9),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAF4FC),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: const Color(0xFFD5E8F7),
+          ),
+        ),
+
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(
+            18,
+            16,
+            18,
+            14,
+          ),
+          color: Colors.white,
+          child: SizedBox(
+            height: 52,
+            child: TextField(
+              onSubmitted: _search,
+              decoration: InputDecoration(
+                hintText: 'Search tenants, users, settings...',
+                hintStyle: const TextStyle(
+                  color: Color(0xFF777F87),
+                  fontSize: 16,
+                ),
+                prefixIcon: const Icon(
+                  Icons.search_rounded,
+                  color: Color(0xFF617589),
+                  size: 24,
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF3F5F6),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(28),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFDCE2E6),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(28),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFDCE2E6),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(28),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF3B5DE8),
+                  ),
                 ),
               ),
-              child: const Icon(
-                Icons.person_outline,
-                color: Color(0xFF1677C8),
-                size: 23,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  return Container(
+    height: 76,
+    padding: EdgeInsets.symmetric(
+      horizontal: isMobile ? 8 : 20,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      border: const Border(
+        bottom: BorderSide(
+          color: Color(0xFFE2E8F0),
+        ),
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 12,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        IconButton(
+          onPressed: () {
+            if (isMobile || isTablet) {
+              _scaffoldKey.currentState?.openDrawer();
+            } else {
+              setState(() {
+                _desktopSidebarOpen = !_desktopSidebarOpen;
+              });
+            }
+          },
+          icon: Icon(
+            isMobile || isTablet
+                ? Icons.menu
+                : (_desktopSidebarOpen
+                    ? Icons.menu_open
+                    : Icons.menu),
+            color: const Color(0xFF0B1220),
+            size: 24,
+          ),
+          tooltip: 'Menu',
+        ),
+        const SizedBox(width: 10),
+        if (!isMobile) ...[
+          SizedBox(
+            width: 420,
+            height: 37,
+            child: TextField(
+              onSubmitted: _search,
+              style: const TextStyle(fontSize: 12.5),
+              decoration: InputDecoration(
+                hintText:
+                    'Search tenants, users, settings, audit logs...',
+                hintStyle: const TextStyle(
+                  color: Color(0xFF94A3B8),
+                  fontSize: 11.5,
+                ),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: Color(0xFF94A3B8),
+                  size: 18,
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF4F8FC),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFE2E8F0),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFE2E8F0),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF3B5DE8),
+                  ),
+                ),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
+        const Spacer(),
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            IconButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    const SnackBar(
+                      content: Text('No new notifications'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+              },
+              icon: const Icon(
+                Icons.notifications_none_rounded,
+                color: Color(0xFF475569),
+                size: 23,
+              ),
+            ),
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Container(
+                width: 7,
+                height: 7,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEF4444),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ],
+        ),
+        IconButton(
+          onPressed: () => _navigateContent(AppRoutes.settings),
+          icon: const Icon(
+            Icons.settings_outlined,
+            color: Color(0xFF475569),
+            size: 22,
+          ),
+        ),
+        const SizedBox(width: 4),
+        PopupMenuButton<String>(
+          onSelected: (value) {
+            if (value == 'settings') {
+              _navigateContent(AppRoutes.settings);
+            } else if (value == 'logout') {
+              _logout();
+            }
+          },
+          itemBuilder: (context) => const [
+            PopupMenuItem(
+              value: 'settings',
+              child: Row(
+                children: [
+                  Icon(Icons.settings_outlined),
+                  SizedBox(width: 10),
+                  Text('Settings'),
+                ],
+              ),
+            ),
+            PopupMenuDivider(),
+            PopupMenuItem(
+              value: 'logout',
+              child: Row(
+                children: [
+                  Icon(Icons.logout),
+                  SizedBox(width: 10),
+                  Text('Logout'),
+                ],
+              ),
+            ),
+          ],
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 6,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFFE2E8F0),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEAF0FE),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.person_outline,
+                    color: Color(0xFF3B5DE8),
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Admin User',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0B1220),
+                      ),
+                    ),
+                    Text(
+                      'Super Admin',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Color(0xFF64748B),
+                  size: 18,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }
 
 class _ContentRouteObserver extends NavigatorObserver {
