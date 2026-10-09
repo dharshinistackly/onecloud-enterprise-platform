@@ -8,6 +8,7 @@ import '../auth/social_login_page.dart';
 import '../auth/mobile_welcome_page.dart';
 
 import '../pages/dashboard/home_page.dart';
+import '../pages/platform_administration/super_admin_dashboard_page.dart';
 
 import '../pages/platform_administration/global_settings_page.dart';
 import '../pages/platform_administration/platform_config_page.dart';
@@ -184,6 +185,7 @@ class AppRoutes {
   static const String systemHealth = '/system-health';
   static const String platformBranding = '/platform-branding';
   static const String globalDashboard = '/global-dashboard';
+  static const String superAdminDashboard = '/super-admin-dashboard';
 
   static const String employeeManagement = '/employee-management';
   static const String attendance = '/attendance';
@@ -350,6 +352,7 @@ static const String settings = '/settings';
     systemHealth: (context) => const SystemHealthPage(),
     platformBranding: (context) => const PlatformBrandingPage(),
     globalDashboard: (context) => const GlobalDashboardPage(),
+    superAdminDashboard: (context) => const SuperAdminDashboardPage(),
 
     employeeManagement: (context) => const EmployeeManagementPage(),
     attendance: (context) => const AttendancePage(),

@@ -109,7 +109,10 @@ class _SidebarState extends State<Sidebar> {
             child: Row(
               children: [
                 Expanded(
-                  child: Image.asset(
+                  // tap the logo -> back to the landing page
+                  child: InkWell(
+                    onTap: () => _openRoute(context, AppRoutes.home),
+                    child: Image.asset(
                     'assets/stackly_logo_light.png',
                     width: 145,
                     height: 48,
@@ -129,6 +132,7 @@ class _SidebarState extends State<Sidebar> {
                         ),
                       );
                     },
+                  ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -243,7 +247,16 @@ class _SidebarState extends State<Sidebar> {
 
         InkWell(
           onTap: () {
-            provider.toggleGroup(group.title);
+            if (group.title == 'Platform Administration') {
+              // Clicking the module opens its landing page (home) and
+              // keeps the sub-menu open.
+              if (!provider.isExpanded(group.title)) {
+                provider.toggleGroup(group.title);
+              }
+              _openRoute(context, AppRoutes.home);
+            } else {
+              provider.toggleGroup(group.title);
+            }
           },
           canRequestFocus: false,
           focusColor: Colors.transparent,
@@ -263,20 +276,30 @@ class _SidebarState extends State<Sidebar> {
                     group.title.toUpperCase(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xFF5B6883),
+                    style: TextStyle(
+                      color: group.title == 'Platform Administration' &&
+                              provider.selectedRoute == AppRoutes.home
+                          ? Colors.white
+                          : const Color(0xFF5B6883),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.7,
                     ),
                   ),
                 ),
-                Icon(
-                  expanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  color: const Color(0xFF5B6883),
-                  size: 17,
+                // The arrow only opens / closes the sub-menu.
+                InkWell(
+                  onTap: () => provider.toggleGroup(group.title),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Icon(
+                      expanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      color: const Color(0xFF5B6883),
+                      size: 17,
+                    ),
+                  ),
                 ),
               ],
             ),
