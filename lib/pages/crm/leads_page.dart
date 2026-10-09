@@ -133,8 +133,7 @@ class _LeadsPageState extends State<LeadsPage> {
               ),
             ),
             const SizedBox(height: 18),
-            Expanded(
-              child: Card(
+            Card(
                 elevation: 0,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -159,7 +158,7 @@ class _LeadsPageState extends State<LeadsPage> {
                   ),
                 ),
               ),
-            ),
+            
           ],
         ),
       )),

@@ -1,16 +1,147 @@
-// ignore_for_file: uri_does_not_exist
 import 'package:flutter/material.dart';
-import '../../widgets/app_shell.dart';
 
-class HomePage extends StatefulWidget {
+import '../../routes/app_routes.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/app_shell.dart';
+import '../../widgets/dashboard_dialogs.dart';
+
+/// Super Admin Dashboard – the home page (opens after login) and also the
+/// first item of the "Platform Administration" sidebar group.
+///
+/// The page content lives in [_HomeContent] on purpose: its `BuildContext` is
+/// *inside* the shell's content navigator, so `Navigator.pushNamed` opens
+/// pages inside the shell (header + sidebar stay) instead of on top of it.
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  Widget build(BuildContext context) {
+    return const AppShell(
+      title: 'Super Admin Dashboard',
+      subtitle: 'Welcome back, Super Admin',
+      child: _HomeContent(),
+    );
+  }
 }
 
-class _HomePageState extends State<HomePage> {
-  void _showMessage(String message) {
+// ---------------------------------------------------------------------------
+// Local aliases of the shared tokens (lib/theme/app_theme.dart)
+// ---------------------------------------------------------------------------
+const _ink = AppColors.ink;
+const _muted = AppColors.muted;
+const _hint = AppColors.hint;
+const _border = AppColors.border;
+const _blue = AppColors.blue;
+const _mono = AppFonts.mono;
+
+class _HomeContent extends StatefulWidget {
+  const _HomeContent();
+
+  @override
+  State<_HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<_HomeContent> {
+  // ----------------------------- data ------------------------------------
+  static const _stats = <_Stat>[
+    _Stat(
+      'TOTAL USERS',
+      '96,412',
+      '↑ 1.8% this month',
+      Icons.person_outline,
+      Color(0xFFE5F6EE),
+      Color(0xFF1FA67A),
+    ),
+    _Stat(
+      'ACTIVE USERS',
+      '78,930',
+      '4,215 online now',
+      Icons.check_circle_outline,
+      Color(0xFFE8EEFF),
+      Color(0xFF3B5BDB),
+    ),
+    _Stat(
+      'ORGANIZATIONS',
+      '1,842',
+      '↑ 4.2% this month',
+      Icons.apartment_outlined,
+      Color(0xFFFFF1D6),
+      Color(0xFFD98A12),
+    ),
+    _Stat(
+      'LICENSES ACTIVE',
+      '2,140',
+      '27 expiring < 30 days',
+      Icons.description_outlined,
+      Colors.white,
+      Color(0xFF1B2160),
+      highlighted: true,
+    ),
+  ];
+
+  static const _status = <_StatusItem>[
+    _StatusItem('SERVER STATUS', 'Healthy', Color(0xFF16A870)),
+    _StatusItem('DATABASE', 'Connected', Color(0xFF16A870)),
+    _StatusItem('API GATEWAY', 'Running', Color(0xFF16A870)),
+    _StatusItem('STORAGE', '68% used', Color(0xFFE59A1E)),
+  ];
+
+  static const _resources = <_Resource>[
+    _Resource('CPU usage', 42, Color(0xFF2B5C84)),
+    _Resource('Memory usage', 57, Color(0xFF2B5C84)),
+    _Resource('Storage', 68, Color(0xFF5CBF9A)),
+  ];
+
+  static const _nav = <_NavItem>[
+    _NavItem('User Management', 'Accounts & roles', Icons.person_outline,
+        AppRoutes.userManagement),
+    _NavItem('Platform Settings', 'Global config', Icons.settings_outlined,
+        AppRoutes.globalSettings),
+    _NavItem('License Mgmt', 'Renewals & seats', Icons.description_outlined,
+        AppRoutes.licenseManagement),
+    _NavItem('Audit Logs', 'Admin actions', Icons.fact_check_outlined,
+        AppRoutes.auditLogs),
+    _NavItem('Notifications', 'Notification centre',
+        Icons.notifications_none_rounded, AppRoutes.inAppNotifications),
+    _NavItem('Backup', 'Snapshots', Icons.inventory_2_outlined, null),
+    _NavItem('Reports', 'Analytics', Icons.show_chart_rounded,
+        AppRoutes.standardReports),
+    _NavItem('Security', 'Threats & policies', Icons.shield_outlined,
+        AppRoutes.securityAlerts),
+  ];
+
+  static const _alerts = <_AlertItem>[
+    _AlertItem(
+      '27 licenses expiring within 30 days',
+      'Review renewals before Sep 22.',
+      Icons.warning_amber_rounded,
+      _AlertTone.warning,
+    ),
+    _AlertItem(
+      '3 organizations awaiting approval',
+      'Submitted via self-signup.',
+      Icons.info_outline,
+      _AlertTone.info,
+    ),
+    _AlertItem(
+      'Unusual login pattern detected',
+      'Delta Retail Group — 3 new locations.',
+      Icons.lock_outline,
+      _AlertTone.warning,
+    ),
+  ];
+
+  static const _logins = <_Login>[
+    _Login('Ana Ferreira', ' signed in from Lisbon, PT', '14 minutes ago',
+        _LoginTone.ok),
+    _Login('Unrecognized device', ' signed in to Delta Retail Group',
+        '52 minutes ago', _LoginTone.warn),
+    _Login('5 failed attempts', ' on j.mehta@acmecorp.com — locked',
+        'Yesterday, 18:15', _LoginTone.bad),
+  ];
+
+  // ----------------------------- actions ---------------------------------
+  void _toast(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -22,400 +153,450 @@ class _HomePageState extends State<HomePage> {
       );
   }
 
+  void _open(String? route, String title) {
+    if (route != null && AppRoutes.routes.containsKey(route)) {
+      Navigator.of(context).pushNamed(route);
+    } else {
+      _toast('$title page will be connected soon.');
+    }
+  }
+
+  Future<void> _export() async {
+    final options = await showExportReportDialog(context);
+    if (options != null && mounted) {
+      _toast('Report export started');
+    }
+  }
+
+  void _refresh() {
+    setState(() {});
+    _toast('Dashboard refreshed');
+  }
+
+  // ----------------------------- build -----------------------------------
   @override
   Widget build(BuildContext context) {
-    return AppShell(
-      title: 'Dashboard',
-      subtitle: 'OneCloud Enterprise',
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isMobile = constraints.maxWidth < 700;
-
-          return Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  isMobile ? 14 : 26,
-                  isMobile ? 14 : 18,
-                  isMobile ? 14 : 26,
-                  14,
-                ),
-                child: _buildWelcomeBanner(isMobile),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    isMobile ? 14 : 26,
-                    0,
-                    isMobile ? 14 : 26,
-                    30,
-                  ),
-                  child: _buildDashboardContent(),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildWelcomeBanner(bool isMobile) {
-    return Container(
-      width: double.infinity,
-      height: isMobile ? 158 : 148,
-      padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 18 : 26,
-        vertical: isMobile ? 18 : 20,
-      ),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0F3D66),
-            Color(0xFF1677C8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1677C8).withValues(alpha: 0.20),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final compact = constraints.maxWidth < 500;
-
-          return Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    right: compact ? 8 : 16,
-                  ),
-                  child: _buildWelcomeText(compact),
-                ),
-              ),
-              _cloudCircle(
-                size: compact ? 64 : 78,
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildWelcomeText(bool compact) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Welcome to OneCloud',
-          maxLines: compact ? 2 : 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: compact ? 22 : 27,
-            fontWeight: FontWeight.w800,
-            color: Colors.white,
-          ),
-        ),
-
-        const SizedBox(height: 6),
-
-        Text(
-          'Manage your enterprise services from one centralized platform.',
-          maxLines: compact ? 2 : 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: compact ? 12 : 14,
-            color: Colors.white.withValues(alpha: 0.88),
-            height: 1.35,
-          ),
-        ),
-
-        const SizedBox(height: 10),
-
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 6,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.22),
-            ),
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.verified_outlined,
-                color: Colors.white,
-                size: 14,
-              ),
-              SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  'Enterprise Control Center',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _cloudCircle({double size = 78}) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.20),
-          width: 2,
-        ),
-      ),
-      child: Icon(
-        Icons.cloud_outlined,
-        color: Colors.white,
-        size: size * 0.53,
-      ),
-    );
-  }
-
-  Widget _buildDashboardContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStatistics(),
-
-        const SizedBox(height: 28),
-
-        _buildSectionTitle(
-          'Platform Overview',
-          'Monitor your enterprise services and platform activity.',
-        ),
-
-        const SizedBox(height: 16),
-
-        _buildPlatformOverview(),
-
-        const SizedBox(height: 28),
-
-        _buildSectionTitle(
-          'Quick Actions',
-          'Frequently used platform operations.',
-        ),
-
-        const SizedBox(height: 16),
-
-        _buildQuickActions(),
-
-        const SizedBox(height: 28),
-
-        _buildSectionTitle(
-          'System Status',
-          'Current status of your OneCloud platform.',
-        ),
-
-        const SizedBox(height: 16),
-
-        _buildSystemStatus(),
-
-        const SizedBox(height: 28),
-
-        _buildFooter(),
-      ],
-    );
-  }
-
-  Widget _buildStatistics() {
     return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
+      builder: (context, c) {
+        final mobile = c.maxWidth < 700;
 
-        final columns = width >= 1100
-            ? 4
-            : width >= 650
-                ? 2
-                : 1;
-
-        return GridView.count(
-          crossAxisCount: columns,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: columns == 1 ? 3.0 : 2.25,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            _buildStatCard(
-              'Total Users',
-              '1,248',
-              Icons.people_alt_outlined,
-              const Color(0xFF1677C8),
+        return Container(
+          color: AppColors.background,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              mobile ? 16 : 24,
+              mobile ? 16 : 20,
+              mobile ? 16 : 24,
+              28,
             ),
-
-            _buildStatCard(
-              'Active Tenants',
-              '48',
-              Icons.business_outlined,
-              const Color(0xFF10B981),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _breadcrumb(),
+                const SizedBox(height: 8),
+                _heading(mobile),
+                SizedBox(height: mobile ? 18 : 22),
+                _caption('PLATFORM OVERVIEW'),
+                const SizedBox(height: 10),
+                _statCards(mobile),
+                const SizedBox(height: 22),
+                _caption('SYSTEM STATUS'),
+                const SizedBox(height: 10),
+                _statusCards(mobile),
+                const SizedBox(height: 10),
+                _resourceCard(mobile),
+                const SizedBox(height: 22),
+                _caption('QUICK NAVIGATION'),
+                const SizedBox(height: 10),
+                _navCards(mobile),
+                const SizedBox(height: 22),
+                _bottomPanels(mobile),
+                if (mobile) ...[
+                  const SizedBox(height: 22),
+                  _mobileExport(),
+                ],
+              ],
             ),
-
-            _buildStatCard(
-              'Active Services',
-              '16',
-              Icons.apps_outlined,
-              const Color(0xFF8B5CF6),
-            ),
-
-            _buildStatCard(
-              'System Health',
-              '99.9%',
-              Icons.health_and_safety_outlined,
-              const Color(0xFFF59E0B),
-            ),
-          ],
+          ),
         );
       },
     );
   }
 
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: color.withValues(alpha: 0.45),
-          width: 1.4,
+  // ----------------------------- heading ---------------------------------
+  Widget _breadcrumb() {
+    return const Row(
+      children: [
+        Text(
+          'Platform Administration',
+          style: TextStyle(fontSize: AppType.breadcrumb, color: _muted),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 5,
-            height: double.infinity,
-            color: color,
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6),
+          child: Text(
+            '/',
+            style: TextStyle(fontSize: AppType.breadcrumb, color: _muted),
           ),
-
-          const SizedBox(width: 14),
-
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.09),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 25,
-            ),
+        ),
+        Text(
+          'Dashboard',
+          style: TextStyle(
+            fontSize: AppType.breadcrumb,
+            color: _ink,
+            fontWeight: FontWeight.w600,
           ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF64748B),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF0F3D66),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 10),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildSectionTitle(
-    String title,
-    String subtitle,
-  ) {
+  Widget _heading(bool mobile) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 4,
-          height: 34,
-          decoration: BoxDecoration(
-            color: const Color(0xFF1677C8),
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-
-        const SizedBox(width: 11),
-
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF0F3D66),
+                'Super Admin Dashboard',
+                style: TextStyle(
+                  fontSize: mobile ? AppType.pageTitleM : AppType.pageTitleD,
+                  fontWeight: FontWeight.w700,
+                  color: _ink,
+                  height: 1.2,
                 ),
               ),
-
-              const SizedBox(height: 4),
-
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF64748B),
+              const SizedBox(height: 6),
+              const Text(
+                'Welcome back, Super Admin',
+                style: TextStyle(
+                  fontSize: AppType.pageSubtitle,
+                  color: _muted,
                 ),
+              ),
+            ],
+          ),
+        ),
+        if (mobile)
+          IconButton(
+            onPressed: _refresh,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(
+              Icons.sync,
+              size: 24,
+              color: Color(0xFF52616F),
+            ),
+          )
+        else ...[
+          _topButton('Refresh', Icons.refresh, _refresh),
+          const SizedBox(width: 10),
+          _topButton('Export report', Icons.download_outlined, _export,
+              primary: true),
+        ],
+      ],
+    );
+  }
+
+  Widget _topButton(
+    String label,
+    IconData icon,
+    VoidCallback onTap, {
+    bool primary = false,
+  }) {
+    final shape =
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(6));
+    final text = Text(
+      label,
+      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+    );
+
+    return SizedBox(
+      height: 34,
+      child: primary
+          ? ElevatedButton.icon(
+              onPressed: onTap,
+              icon: Icon(icon, size: 16),
+              label: text,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _blue,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: shape,
+              ),
+            )
+          : OutlinedButton.icon(
+              onPressed: onTap,
+              icon: Icon(icon, size: 16),
+              label: text,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF253341),
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFD8E0E8)),
+                shape: shape,
+              ),
+            ),
+    );
+  }
+
+  Widget _caption(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontFamily: _mono,
+        fontSize: AppType.sectionLabel,
+        letterSpacing: 1.2,
+        color: Color(0xFF7C8DA3),
+      ),
+    );
+  }
+
+  // ----------------------------- layout helpers --------------------------
+  BoxDecoration _box() => BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _border),
+      );
+
+  /// Lays [children] out in rows of [cols] with fixed gaps.
+  Widget _grid(List<Widget> children, int cols, {double gap = 12}) {
+    final rows = <Widget>[];
+    for (var i = 0; i < children.length; i += cols) {
+      rows.add(
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var j = 0; j < cols; j++) ...[
+              if (j > 0) SizedBox(width: gap),
+              Expanded(
+                child: i + j < children.length
+                    ? children[i + j]
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ],
+        ),
+      );
+      if (i + cols < children.length) rows.add(SizedBox(height: gap));
+    }
+    return Column(children: rows);
+  }
+
+  // ----------------------------- stat cards ------------------------------
+  Widget _statCards(bool mobile) {
+    final cards = _stats.map((s) => _statCard(s, mobile)).toList();
+
+    if (mobile) {
+      // single column, as in the design
+      return Column(
+        children: [
+          for (var i = 0; i < cards.length; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            cards[i],
+          ],
+        ],
+      );
+    }
+    return _grid(cards, 4, gap: 16);
+  }
+
+  Widget _statCard(_Stat s, bool mobile) {
+    final on = s.highlighted;
+
+    return Container(
+      height: mobile ? 132 : 136,
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      decoration: on
+          ? BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF3A4FE6), Color(0xFF181D5C)],
+              ),
+            )
+          : _box(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  s.label,
+                  style: TextStyle(
+                    fontFamily: _mono,
+                    fontSize: AppType.cardLabel,
+                    letterSpacing: 1,
+                    color: on ? Colors.white70 : const Color(0xFF7C8DA3),
+                  ),
+                ),
+              ),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: s.chipBg,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(s.icon, size: 17, color: s.chipFg),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            s.value,
+            style: TextStyle(
+              fontSize: mobile ? AppType.statValueM : AppType.statValueD,
+              fontWeight: FontWeight.w700,
+              color: on ? Colors.white : _ink,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            s.delta,
+            style: TextStyle(
+              fontSize: AppType.delta,
+              fontWeight: FontWeight.w500,
+              color: on ? Colors.white : AppColors.green,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ----------------------------- system status ---------------------------
+  Widget _statusCards(bool mobile) {
+    return _grid(
+      _status.map((s) => _statusCard(s)).toList(),
+      mobile ? 2 : 4,
+      gap: mobile ? 12 : 16,
+    );
+  }
+
+  Widget _statusCard(_StatusItem s) {
+    return Container(
+      height: 84,
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+      decoration: _box(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontFamily: _mono,
+              fontSize: 9.5,
+              letterSpacing: 1,
+              color: Color(0xFF7C8DA3),
+            ),
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(color: s.color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  s.value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: _ink,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ----------------------------- resources -------------------------------
+  Widget _resourceCard(bool mobile) {
+    final rows = _resources.map(_resourceRow).toList();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
+      decoration: _box(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'RESOURCE UTILIZATION',
+            style: TextStyle(
+              fontFamily: _mono,
+              fontSize: AppType.cardLabel,
+              letterSpacing: 1,
+              color: Color(0xFF7C8DA3),
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (mobile)
+            for (var i = 0; i < rows.length; i++) ...[
+              if (i > 0) const SizedBox(height: 14),
+              rows[i],
+            ]
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var i = 0; i < rows.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 28),
+                  Expanded(child: rows[i]),
+                ],
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _resourceRow(_Resource r) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                r.label,
+                style: const TextStyle(fontSize: AppType.body, color: _ink),
+              ),
+            ),
+            Text(
+              '${r.percent}%',
+              style: const TextStyle(
+                fontSize: AppType.body,
+                fontWeight: FontWeight.w600,
+                color: _ink,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 7),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: Stack(
+            children: [
+              Container(height: 6, color: const Color(0xFFEEF1F5)),
+              FractionallySizedBox(
+                widthFactor: r.percent / 100,
+                child: Container(height: 6, color: r.color),
               ),
             ],
           ),
@@ -424,283 +605,150 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildPlatformOverview() {
-    final services = [
-      (
-        'HRMS',
-        'Human Resource Management',
-        Icons.people_alt_outlined,
-        const Color(0xFF1677C8),
-      ),
-      (
-        'CRM',
-        'Customer Relationship',
-        Icons.handshake_outlined,
-        const Color(0xFF10B981),
-      ),
-      (
-        'ERP',
-        'Enterprise Resources',
-        Icons.inventory_2_outlined,
-        const Color(0xFF8B5CF6),
-      ),
-      (
-        'Finance',
-        'Accounting & Finance',
-        Icons.account_balance_outlined,
-        const Color(0xFFF59E0B),
-      ),
-      (
-        'AI',
-        'Enterprise Intelligence',
-        Icons.auto_awesome_outlined,
-        const Color(0xFFEC4899),
-      ),
-      (
-        'Workflow',
-        'Automation & Processes',
-        Icons.account_tree_outlined,
-        const Color(0xFF0EA5E9),
-      ),
-    ];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 1100
-            ? 3
-            : constraints.maxWidth >= 650
-                ? 2
-                : 1;
-
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: services.length,
-          gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: columns,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio:
-                columns == 1 ? 3.0 : 2.15,
-          ),
-          itemBuilder: (context, index) {
-            final service = services[index];
-
-            return _buildServiceCard(
-              title: service.$1,
-              subtitle: service.$2,
-              icon: service.$3,
-              color: service.$4,
-            );
-          },
-        );
-      },
+  // ----------------------------- quick navigation ------------------------
+  Widget _navCards(bool mobile) {
+    return _grid(
+      _nav.map((n) => _navCard(n)).toList(),
+      mobile ? 2 : 4,
+      gap: mobile ? 12 : 16,
     );
   }
 
-  Widget _buildServiceCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-  }) {
+  Widget _navCard(_NavItem n) {
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () {
-        _showMessage('$title service selected');
-      },
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: color.withValues(alpha: 0.38),
-            width: 1.2,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 5,
-              height: double.infinity,
-              color: color,
-            ),
-
-            const SizedBox(width: 14),
-
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.09),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 25,
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            Expanded(
-              child: Column(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F3D66),
-                    ),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 8),
-
-            Container(
-              margin: const EdgeInsets.only(right: 12),
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 13,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickActions() {
-    final actions = [
-      (
-        'Add User',
-        Icons.person_add_alt_1_outlined,
-        const Color(0xFF1677C8),
-      ),
-      (
-        'Manage Tenants',
-        Icons.business_outlined,
-        const Color(0xFF10B981),
-      ),
-      (
-        'View Reports',
-        Icons.bar_chart_outlined,
-        const Color(0xFF8B5CF6),
-      ),
-      (
-        'System Health',
-        Icons.monitor_heart_outlined,
-        const Color(0xFFF59E0B),
-      ),
-    ];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: actions.map((action) {
-            final width = constraints.maxWidth < 450
-                ? constraints.maxWidth
-                : null;
-
-            return SizedBox(
-              width: width,
-              child: _buildActionButton(
-                action.$1,
-                action.$2,
-                action.$3,
-                () {
-                  _showMessage(
-                    '${action.$1} selected',
-                  );
-                },
-              ),
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-
-  Widget _buildActionButton(
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
+      onTap: () => _open(n.route, n.title),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 11,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withValues(alpha: 0.38),
-            width: 1.2,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        height: 106,
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+        decoration: _box(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.09),
+                color: const Color(0xFFE5F6EE),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 18,
+              child: Icon(n.icon, size: 17, color: const Color(0xFF1FA67A)),
+            ),
+            const Spacer(),
+            Text(
+              n.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: AppType.body,
+                fontWeight: FontWeight.w700,
+                color: _ink,
               ),
             ),
-
-            const SizedBox(width: 9),
-
+            const SizedBox(height: 3),
             Text(
-              title,
-              style: const TextStyle(
-                fontSize: 13,
+              n.subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: AppType.bodySmall, color: _muted),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ----------------------------- alerts + logins -------------------------
+  Widget _bottomPanels(bool mobile) {
+    final alerts = _alertsPanel();
+    final logins = _loginsPanel();
+
+    if (mobile) {
+      return Column(
+        children: [
+          alerts,
+          const SizedBox(height: 14),
+          logins,
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: alerts),
+        const SizedBox(width: 16),
+        Expanded(child: logins),
+      ],
+    );
+  }
+
+  Widget _alertsPanel() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
+      decoration: _box(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 2, bottom: 12),
+            child: Text(
+              'Security alerts',
+              style: TextStyle(
+                fontSize: AppType.panelTitle,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF334155),
+                color: _ink,
+              ),
+            ),
+          ),
+          for (final a in _alerts) _alertTile(a),
+        ],
+      ),
+    );
+  }
+
+  Widget _alertTile(_AlertItem a) {
+    final warn = a.tone == _AlertTone.warning;
+    final bg = warn ? const Color(0xFFFAEFD6) : const Color(0xFFE8F0FE);
+    final title = warn ? const Color(0xFF8A5A00) : const Color(0xFF1D4ED8);
+    final body = warn ? const Color(0xFFB7791F) : const Color(0xFF3F5FA8);
+
+    return InkWell(
+      onTap: () => showSecurityAlertsDialog(context),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(a.icon, size: 18, color: title),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    a.title,
+                    style: TextStyle(
+                      fontSize: AppType.body,
+                      fontWeight: FontWeight.w700,
+                      color: title,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    a.message,
+                    style: TextStyle(fontSize: AppType.bodySmall, color: body),
+                  ),
+                ],
               ),
             ),
           ],
@@ -709,168 +757,197 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSystemStatus() {
-    final items = [
-      (
-        'Platform Services',
-        'All services operational',
-        Icons.check_circle_outline,
-        const Color(0xFF10B981),
-      ),
-      (
-        'Database',
-        'Connected',
-        Icons.storage_outlined,
-        const Color(0xFF1677C8),
-      ),
-      (
-        'API Gateway',
-        'Operational',
-        Icons.api_outlined,
-        const Color(0xFF8B5CF6),
-      ),
-      (
-        'Security',
-        'Protected',
-        Icons.security_outlined,
-        const Color(0xFFEC4899),
-      ),
-    ];
-
+  Widget _loginsPanel() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFDCE6EF),
-        ),
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      decoration: _box(),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (int i = 0; i < items.length; i++) ...[
-            _buildStatusRow(
-              items[i].$1,
-              items[i].$2,
-              items[i].$3,
-              items[i].$4,
-            ),
-            if (i != items.length - 1)
-              const Divider(height: 24),
+          Row(
+            children: [
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 2),
+                  child: Text(
+                    'Recent login activities',
+                    style: TextStyle(
+                      fontSize: AppType.panelTitle,
+                      fontWeight: FontWeight.w700,
+                      color: _ink,
+                    ),
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () => showRecentActivitiesDialog(context),
+                child: const Text(
+                  '24h',
+                  style: TextStyle(fontSize: AppType.bodySmall, color: _hint),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          for (var i = 0; i < _logins.length; i++) ...[
+            _loginRow(_logins[i]),
+            if (i != _logins.length - 1)
+              const Divider(height: 1, color: Color(0xFFEDF1F6)),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildStatusRow(
-    String title,
-    String status,
-    IconData icon,
-    Color color,
-  ) {
-    return Row(
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.09),
-            borderRadius: BorderRadius.circular(11),
-          ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 22,
-          ),
-        ),
+  Widget _loginRow(_Login l) {
+    late final Color bg, fg;
+    late final IconData icon;
 
-        const SizedBox(width: 12),
+    switch (l.tone) {
+      case _LoginTone.ok:
+        bg = const Color(0xFFE5F6EE);
+        fg = const Color(0xFF16A870);
+        icon = Icons.check;
+        break;
+      case _LoginTone.warn:
+        bg = const Color(0xFFFFF1D6);
+        fg = const Color(0xFFD98A12);
+        icon = Icons.circle;
+        break;
+      case _LoginTone.bad:
+        bg = const Color(0xFFFFE8EC);
+        fg = const Color(0xFFE74760);
+        icon = Icons.close;
+        break;
+    }
 
-        Expanded(
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF334155),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+            child: Icon(icon, size: l.tone == _LoginTone.warn ? 6 : 15, color: fg),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: l.who,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      TextSpan(text: l.what),
+                    ],
+                  ),
+                  style: const TextStyle(
+                    fontSize: AppType.body,
+                    height: 1.35,
+                    color: _ink,
+                  ),
                 ),
-              ),
-
-              const SizedBox(height: 3),
-
-              Text(
-                status,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF64748B),
+                const SizedBox(height: 3),
+                Text(
+                  l.time,
+                  style: const TextStyle(
+                    fontSize: AppType.bodySmall,
+                    color: _muted,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(width: 8),
-
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 6,
-          ),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.09),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            'Healthy',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: color,
+              ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildFooter() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment:
-              WrapCrossAlignment.center,
-          children: [
-            const Icon(
-              Icons.cloud_outlined,
-              size: 15,
-              color: Color(0xFF94A3B8),
-            ),
-
-            const SizedBox(width: 6),
-
-            Text(
-              '© 2026 OneCloud Enterprise Platform',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.blueGrey.shade400,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+  // ----------------------------- export (mobile) -------------------------
+  Widget _mobileExport() {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ElevatedButton.icon(
+        onPressed: _export,
+        icon: const Icon(Icons.download_outlined, size: 18),
+        label: const Text(
+          'Export',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF1B3FE0),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+          ),
         ),
       ),
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+class _Stat {
+  final String label, value, delta;
+  final IconData icon;
+  final Color chipBg, chipFg;
+  final bool highlighted;
+
+  const _Stat(
+    this.label,
+    this.value,
+    this.delta,
+    this.icon,
+    this.chipBg,
+    this.chipFg, {
+    this.highlighted = false,
+  });
+}
+
+class _StatusItem {
+  final String label, value;
+  final Color color;
+  const _StatusItem(this.label, this.value, this.color);
+}
+
+class _Resource {
+  final String label;
+  final int percent;
+  final Color color;
+  const _Resource(this.label, this.percent, this.color);
+}
+
+class _NavItem {
+  final String title, subtitle;
+  final IconData icon;
+  final String? route;
+  const _NavItem(this.title, this.subtitle, this.icon, this.route);
+}
+
+enum _AlertTone { warning, info }
+
+class _AlertItem {
+  final String title, message;
+  final IconData icon;
+  final _AlertTone tone;
+  const _AlertItem(this.title, this.message, this.icon, this.tone);
+}
+
+enum _LoginTone { ok, warn, bad }
+
+class _Login {
+  final String who, what, time;
+  final _LoginTone tone;
+  const _Login(this.who, this.what, this.time, this.tone);
 }

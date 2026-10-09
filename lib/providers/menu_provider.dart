@@ -67,57 +67,64 @@ class MenuProvider extends ChangeNotifier {
   // All sidebar groups
   List<MenuGroupModel> get menuGroups => const [
 
-        // PLATFORM ADMINISTRATION
-        
-        MenuGroupModel(
-          title: 'Platform Administration',
-          icon: Icons.admin_panel_settings_outlined,
-          color: Color(0xFF1677C8),
-          items: [
-            MenuItemModel(
-              title: 'Global Settings',
-              icon: Icons.settings_outlined,
-              color: Color(0xFF1677C8),
-              route: '/global-settings',
-            ),
-            MenuItemModel(
-              title: 'Platform Config',
-              icon: Icons.tune_outlined,
-              color: Color(0xFF1677C8),
-              route: '/platform-config',
-            ),
-            MenuItemModel(
-              title: 'License Management',
-              icon: Icons.card_membership_outlined,
-              color: Color(0xFF1677C8),
-              route: '/license-management',
-            ),
-            MenuItemModel(
-              title: 'Feature Management',
-              icon: Icons.extension_outlined,
-              color: Color(0xFF1677C8),
-              route: '/feature-management',
-            ),
-            MenuItemModel(
-              title: 'Resource Management',
-              icon: Icons.storage_outlined,
-              color: Color(0xFF1677C8),
-              route: '/resource-management',
-            ),
-            MenuItemModel(
-              title: 'System Health',
-              icon: Icons.health_and_safety_outlined,
-              color: Color(0xFF1677C8),
-              route: '/system-health',
-            ),
-            MenuItemModel(
-              title: 'Tenant Templates',
-              icon: Icons.dashboard_customize_outlined,
-              color: Color(0xFF1677C8),
-              route: '/tenant-templates',
-            ),
-          ],
-        ),
+       MenuGroupModel(
+  title: 'Platform Administration',
+  icon: Icons.admin_panel_settings_outlined,
+  color: Color(0xFF1677C8),
+  items: [
+    // Home page: opens after login and lives under Platform Administration.
+    MenuItemModel(
+      title: 'Super Admin Dashboard',
+      icon: Icons.space_dashboard_outlined,
+      color: Color(0xFF1677C8),
+      route: '/home',
+    ),
+    MenuItemModel(
+  title: 'Global Dashboard',
+  icon: Icons.dashboard_outlined,
+  color: Color(0xFF1677C8),
+  route: '/global-dashboard',
+),
+    MenuItemModel(
+      title: 'Platform Branding',
+      icon: Icons.palette_outlined,
+      color: Color(0xFF1677C8),
+      route: '/platform-branding',
+    ),
+    MenuItemModel(
+      title: 'Global Settings',
+      icon: Icons.settings_outlined,
+      color: Color(0xFF1677C8),
+      route: '/global-settings',
+    ),
+    MenuItemModel(
+      title: 'Platform Configuration',
+      icon: Icons.tune_outlined,
+      color: Color(0xFF1677C8),
+      route: '/platform-config',
+    ),
+    MenuItemModel(
+      title: 'License Management',
+      icon: Icons.card_membership_outlined,
+      color: Color(0xFF1677C8),
+      route: '/license-management',
+    ),
+    MenuItemModel(
+      title: 'Feature Management',
+      icon: Icons.extension_outlined,
+      color: Color(0xFF1677C8),
+      route: '/feature-management',
+    ),
+   
+    MenuItemModel(
+      title: 'Platform Health Overview',
+      icon: Icons.health_and_safety_outlined,
+      color: Color(0xFF1677C8),
+      route: '/system-health',
+    ),
+   
+  ],
+),
 
         
         // HRMS SERVICE
