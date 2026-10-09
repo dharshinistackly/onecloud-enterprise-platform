@@ -25,7 +25,7 @@ class PipelinePage extends StatelessWidget {
         const Text('Sales Pipeline', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
         const Text('Monitor opportunities across every sales stage.'),
         const SizedBox(height: 24),
-        Expanded(child: ListView.separated(
+        ListView.separated(
           itemCount: stages.length,
           separatorBuilder: (_, __) => const SizedBox(height: 14),
           itemBuilder: (context, index) {
@@ -39,7 +39,7 @@ class PipelinePage extends StatelessWidget {
               Text(stage['value'] as String, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ])));
           },
-        )),
+        ),
       ]))),
     );
   }

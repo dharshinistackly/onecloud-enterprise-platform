@@ -7,6 +7,12 @@ class AuthBrandPanel extends StatelessWidget {
   final bool showGraphic;
   final bool compactMobile;
   final bool showHeadline;
+
+  /// When true, the ring behind the feature cards is drawn as two open
+  /// arcs (top + bottom, with gaps at the sides) instead of a closed
+  /// oval. Off by default so existing callers (the login page) are not
+  /// affected — only the welcome page turns this on.
+  final bool openRing;
   final Color? backgroundColor;
   final bool showSignInButton;
   final VoidCallback? onSignIn;
@@ -17,6 +23,7 @@ class AuthBrandPanel extends StatelessWidget {
     this.showGraphic = true,
     this.compactMobile = false,
     this.showHeadline = true,
+    this.openRing = false,
     this.backgroundColor,
     this.showSignInButton = false,
     this.onSignIn,
@@ -109,6 +116,7 @@ class AuthBrandPanel extends StatelessWidget {
           child: _HeroGraphic(
             width: graphicWidth,
             compact: isMobile,
+            openRing: openRing,
           ),
         );
 
@@ -229,17 +237,6 @@ class AuthBrandPanel extends StatelessWidget {
                 ],
                 const SizedBox(height: 42),
                 footer,
-                if (showSignInButton) ...[
-                  const Spacer(),
-                  const Text(
-                    'SecureScalableFuture-Ready',
-                    style: TextStyle(
-                      color: Color(0xFF8C95AD),
-                      fontFamily: 'Onest',
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
               ],
             ),
           );
@@ -472,10 +469,12 @@ class _Geo {
 class _HeroGraphic extends StatelessWidget {
   final double width;
   final bool compact;
+  final bool openRing;
 
   const _HeroGraphic({
     required this.width,
     required this.compact,
+    this.openRing = false,
   });
 
   @override
@@ -493,6 +492,7 @@ class _HeroGraphic extends StatelessWidget {
           height: geo.baseH,
           child: _GraphicCanvas(
             geo: geo,
+            openRing: openRing,
           ),
         ),
       ),
@@ -502,9 +502,11 @@ class _HeroGraphic extends StatelessWidget {
 
 class _GraphicCanvas extends StatelessWidget {
   final _Geo geo;
+  final bool openRing;
 
   const _GraphicCanvas({
     required this.geo,
+    this.openRing = false,
   });
 
   static const Color _blue = Color(0xFF2F6BFF);
@@ -541,7 +543,10 @@ class _GraphicCanvas extends StatelessWidget {
       children: [
         Positioned.fill(
           child: CustomPaint(
-            painter: _RingPainter(geo),
+            painter: _RingPainter(
+              geo,
+              openRing: openRing,
+            ),
           ),
         ),
         card(
@@ -720,8 +725,28 @@ class _FeatureCard extends StatelessWidget {
 
 class _RingPainter extends CustomPainter {
   final _Geo geo;
+  final bool openRing;
 
-  _RingPainter(this.geo);
+  _RingPainter(this.geo, {this.openRing = false});
+
+  // Draws either a full closed oval, or — when openRing is true — two
+  // arcs: one across the top, one across the bottom, each leaving a gap
+  // at the left and right so the ring reads as "open" rather than a
+  // full circle.
+  void _drawRingShape(Canvas canvas, Rect rect, Paint paint) {
+    if (!openRing) {
+      canvas.drawOval(rect, paint);
+      return;
+    }
+
+    const double sweepDeg = 140;
+    const double sweep = sweepDeg * math.pi / 180;
+    const double topStart = -math.pi / 2 - sweep / 2;
+    const double bottomStart = math.pi / 2 - sweep / 2;
+
+    canvas.drawArc(rect, topStart, sweep, false, paint);
+    canvas.drawArc(rect, bottomStart, sweep, false, paint);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -771,7 +796,8 @@ class _RingPainter extends CustomPainter {
       }
     }
 
-    canvas.drawOval(
+    _drawRingShape(
+      canvas,
       ring.inflate(12),
       Paint()
         ..style = PaintingStyle.stroke
@@ -779,7 +805,8 @@ class _RingPainter extends CustomPainter {
         ..color = const Color(0xFF2F6BFF).withValues(alpha: 0.30),
     );
 
-    canvas.drawOval(
+    _drawRingShape(
+      canvas,
       ring,
       Paint()
         ..style = PaintingStyle.stroke
@@ -791,7 +818,8 @@ class _RingPainter extends CustomPainter {
         ),
     );
 
-    canvas.drawOval(
+    _drawRingShape(
+      canvas,
       ring,
       Paint()
         ..style = PaintingStyle.stroke
@@ -803,7 +831,8 @@ class _RingPainter extends CustomPainter {
         ),
     );
 
-    canvas.drawOval(
+    _drawRingShape(
+      canvas,
       ring,
       Paint()
         ..style = PaintingStyle.stroke
@@ -826,7 +855,8 @@ class _RingPainter extends CustomPainter {
         ).createShader(ring),
     );
 
-    canvas.drawOval(
+    _drawRingShape(
+      canvas,
       ring.deflate(3.2),
       Paint()
         ..style = PaintingStyle.stroke
@@ -839,6 +869,7 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(
     covariant _RingPainter oldDelegate,
   ) {
-    return oldDelegate.geo.compact != geo.compact;
+    return oldDelegate.geo.compact != geo.compact ||
+        oldDelegate.openRing != openRing;
   }
 }

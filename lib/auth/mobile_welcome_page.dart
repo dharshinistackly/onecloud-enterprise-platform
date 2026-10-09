@@ -15,6 +15,7 @@ class MobileWelcomePage extends StatelessWidget {
           isMobile: true,
           showGraphic: true,
           showHeadline: true,
+          openRing: true,
           showSignInButton: true,
           onSignIn: () {
             Navigator.pushReplacementNamed(

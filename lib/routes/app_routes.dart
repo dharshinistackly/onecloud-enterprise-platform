@@ -13,9 +13,9 @@ import '../pages/platform_administration/global_settings_page.dart';
 import '../pages/platform_administration/platform_config_page.dart';
 import '../pages/platform_administration/license_management_page.dart';
 import '../pages/platform_administration/feature_management_page.dart';
-import '../pages/platform_administration/resource_management_page.dart';
 import '../pages/platform_administration/system_health_page.dart';
-import '../pages/platform_administration/tenant_templates_page.dart';
+import '../pages/platform_administration/platform_branding_page.dart';
+import '../pages/platform_administration/global_dashboard_page.dart';
 
 import '../pages/hrms/employee_management_page.dart';
 import '../pages/hrms/attendance_page.dart';
@@ -181,9 +181,9 @@ class AppRoutes {
   static const String platformConfig = '/platform-config';
   static const String licenseManagement = '/license-management';
   static const String featureManagement = '/feature-management';
-  static const String resourceManagement = '/resource-management';
   static const String systemHealth = '/system-health';
-  static const String tenantTemplates = '/tenant-templates';
+  static const String platformBranding = '/platform-branding';
+  static const String globalDashboard = '/global-dashboard';
 
   static const String employeeManagement = '/employee-management';
   static const String attendance = '/attendance';
@@ -347,9 +347,9 @@ static const String settings = '/settings';
     platformConfig: (context) => const PlatformConfigPage(),
     licenseManagement: (context) => const LicenseManagementPage(),
     featureManagement: (context) => const FeatureManagementPage(),
-    resourceManagement: (context) => const ResourceManagementPage(),
     systemHealth: (context) => const SystemHealthPage(),
-    tenantTemplates: (context) => const TenantTemplatesPage(),
+    platformBranding: (context) => const PlatformBrandingPage(),
+    globalDashboard: (context) => const GlobalDashboardPage(),
 
     employeeManagement: (context) => const EmployeeManagementPage(),
     attendance: (context) => const AttendancePage(),
