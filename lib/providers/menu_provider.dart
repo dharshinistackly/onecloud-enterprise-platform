@@ -72,12 +72,12 @@ class MenuProvider extends ChangeNotifier {
   icon: Icons.admin_panel_settings_outlined,
   color: Color(0xFF1677C8),
   items: [
-    // Home page: opens after login and lives under Platform Administration.
+    // Super Admin Dashboard page
     MenuItemModel(
       title: 'Super Admin Dashboard',
       icon: Icons.space_dashboard_outlined,
       color: Color(0xFF1677C8),
-      route: '/home',
+      route: '/super-admin-dashboard',
     ),
     MenuItemModel(
   title: 'Global Dashboard',
