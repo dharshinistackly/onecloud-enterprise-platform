@@ -1,24 +1,7 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:one_cloud_enterprise/widgets/license_dialogs.dart';
-
-/// ---------------------------------------------------------------------------
-/// LICENSE MANAGEMENT
-/// ---------------------------------------------------------------------------
-/// Popups live in lib/widgets/license_dialogs.dart.
-///
-/// Focus:
-/// Platform Administration -> License Management
-///
-/// Includes:
-/// - License list
-/// - Search
-/// - Filters
-/// - Create License
-/// - Export Options
-/// - Renew License
-/// - Suspend License
-/// - Activate License
-/// ---------------------------------------------------------------------------
+import '../../utils/chart_csv_export.dart';
 
 const _ink = Color(0xFF172536);
 const _muted = Color(0xFF61758A);
@@ -50,48 +33,20 @@ class _LicenseManagementPageState
 
   final Set<int> _selected = {};
 
-  final List<Map<String, String>> _licenses = [
-    {
-      'key': 'LIC-4421-ACPR',
-      'plan': 'Standard',
-      'seats': '50 Seats',
-      'org': '123 Inc',
-      'expiry': 'Nov 02, 2024',
-      'status': 'Active',
-    },
-    {
-      'key': 'LIC-4421-ACPR',
-      'plan': 'Standard',
-      'seats': '50 Seats',
-      'org': '123 Inc',
-      'expiry': 'Nov 02, 2024',
-      'status': 'Expiring',
-    },
-    {
-      'key': 'LIC-1221-ACPR',
-      'plan': 'Standard',
-      'seats': '50 Seats',
-      'org': '123 Inc',
-      'expiry': 'Nov 02, 2024',
-      'status': 'Expiring',
-    },
-    {
-      'key': 'LIC-5321-ACPR',
-      'plan': 'Enterprise',
-      'seats': '100 Seats',
-      'org': 'Stackly',
-      'expiry': 'Dec 18, 2024',
-      'status': 'Rejected',
-    },
-    {
-      'key': 'LIC-8821-MNPR',
-      'plan': 'Standard',
-      'seats': '50 Seats',
-      'org': '456 Inc',
-      'expiry': 'Jan 15, 2025',
-      'status': 'Active',
-    },
+  // Starts empty. Licenses appear here when you press "Create License".
+  final List<Map<String, String>> _licenses = [];
+
+  static const _knownOrgs = [
+    '123 Inc',
+    'Stackly',
+    '456 Inc',
+    'Acme Corp',
+    'Globex Ltd',
   ];
+
+  String get _emptyText => _licenses.isEmpty
+      ? 'No licenses yet - click Create License to add one'
+      : 'No licenses found';
 
   List<MapEntry<int, Map<String, String>>> get _filtered {
     final query =
@@ -137,15 +92,79 @@ class _LicenseManagementPageState
     return result;
   }
 
-  List<Map<String, String>> get _selectedLicenses {
-    return _selected
-        .where(
-          (index) =>
-              index >= 0 &&
-              index < _licenses.length,
-        )
-        .map((index) => _licenses[index])
-        .toList();
+  static const int _pageSize = 5;
+
+  static const _statusOptions = ['Active', 'Expiring', 'Suspended', 'Rejected'];
+  static const _planOptions = ['Standard', 'Professional', 'Enterprise'];
+
+  List<String> get _orgOptions =>
+      (_licenses.map((l) => l['org'] ?? '').where((o) => o.isNotEmpty).toSet()
+            .toList()
+        ..sort());
+
+  List<String> get _creatableOrgs =>
+      ({..._knownOrgs, ..._orgOptions}.toList()..sort());
+
+  int get _totalPages {
+    final n = (_filtered.length / _pageSize).ceil();
+    return n < 1 ? 1 : n;
+  }
+
+  int get _safePage => _page.clamp(1, _totalPages).toInt();
+
+  List<MapEntry<int, Map<String, String>>> get _pageItems {
+    final start = (_safePage - 1) * _pageSize;
+    return _filtered.skip(start).take(_pageSize).toList();
+  }
+
+  String get _showingText {
+    final total = _filtered.length;
+    if (total == 0) return 'No entries';
+    final start = (_safePage - 1) * _pageSize;
+    final end = math.min(start + _pageSize, total);
+    return 'Showing ${start + 1} to $end of $total entries';
+  }
+
+  List<_SummaryData> get _summary {
+    int count(String status) =>
+        _licenses.where((l) => l['status'] == status).length;
+    final total = _licenses.length;
+    final active = count('Active');
+    final rate = total == 0 ? 0 : active * 100 / total;
+    return [
+      _SummaryData(
+        title: 'Total Licenses',
+        value: '$total',
+        icon: Icons.key_outlined,
+        iconBg: const Color(0xFFEAF1FF),
+        iconColor: const Color(0xFF3974E8),
+        caption: 'Across all organizations',
+      ),
+      _SummaryData(
+        title: 'Active Licenses',
+        value: '$active',
+        icon: Icons.check_circle_outline,
+        iconBg: const Color(0xFFDDF8EC),
+        iconColor: const Color(0xFF16B77A),
+        caption: '${rate.toStringAsFixed(1)}% utilization rate',
+      ),
+      _SummaryData(
+        title: 'Expiring licenses',
+        value: '${count('Expiring')}',
+        icon: Icons.warning_amber_outlined,
+        iconBg: const Color(0xFFFFF2C8),
+        iconColor: const Color(0xFFF1A900),
+        caption: 'Renew soon',
+      ),
+      _SummaryData(
+        title: 'Suspended licenses',
+        value: '${count('Suspended')}',
+        icon: Icons.block_outlined,
+        iconBg: const Color(0xFFFFE7E8),
+        iconColor: const Color(0xFFE44D55),
+        caption: 'Requires admin review',
+      ),
+    ];
   }
 
   @override
@@ -190,7 +209,7 @@ class _LicenseManagementPageState
   // =========================================================================
 
   Widget _buildDesktop() {
-    final items = _filtered;
+    final items = _pageItems;
 
     return Column(
       crossAxisAlignment:
@@ -261,9 +280,7 @@ class _LicenseManagementPageState
             _topButton(
               'Refresh',
               Icons.refresh,
-              onPressed: () {
-                setState(() {});
-              },
+              onPressed: _refresh,
             ),
 
             const SizedBox(width: 10),
@@ -290,13 +307,13 @@ class _LicenseManagementPageState
         Row(
           children: [
             for (var i = 0;
-                i < _summaryData.length;
+                i < _summary.length;
                 i++) ...[
               if (i > 0)
                 const SizedBox(width: 14),
               Expanded(
                 child: _SummaryCard(
-                  data: _summaryData[i],
+                  data: _summary[i],
                   height: 140,
                 ),
               ),
@@ -340,11 +357,7 @@ class _LicenseManagementPageState
                   _Filter(
                     label: 'Organization',
                     value: _organization,
-                    options: const [
-                      '123 Inc',
-                      'Stackly',
-                      '456 Inc',
-                    ],
+                    options: _creatableOrgs,
                     onChanged: (value) {
                       setState(() {
                         _organization = value;
@@ -357,10 +370,7 @@ class _LicenseManagementPageState
                   _Filter(
                     label: 'License Type',
                     value: _licenseType,
-                    options: const [
-                      'Standard',
-                      'Enterprise',
-                    ],
+                    options: _planOptions,
                     onChanged: (value) {
                       setState(() {
                         _licenseType = value;
@@ -373,11 +383,7 @@ class _LicenseManagementPageState
                   _Filter(
                     label: 'Status',
                     value: _status,
-                    options: const [
-                      'Active',
-                      'Expiring',
-                      'Rejected',
-                    ],
+                    options: _statusOptions,
                     onChanged: (value) {
                       setState(() {
                         _status = value;
@@ -422,8 +428,8 @@ class _LicenseManagementPageState
 
             const Spacer(),
 
-            const Text(
-              'Showing 1 to 5 of 2,458 entries',
+            Text(
+              _showingText,
               style: TextStyle(
                 fontFamily: _mono,
                 fontSize: 11,
@@ -445,7 +451,7 @@ class _LicenseManagementPageState
   // =========================================================================
 
   Widget _buildMobile() {
-    final items = _filtered;
+    final items = _pageItems;
 
     return Column(
       crossAxisAlignment:
@@ -475,9 +481,7 @@ class _LicenseManagementPageState
             ),
 
             IconButton(
-              onPressed: () {
-                setState(() {});
-              },
+              onPressed: _refresh,
               icon: const Icon(
                 Icons.refresh,
                 size: 21,
@@ -488,7 +492,7 @@ class _LicenseManagementPageState
 
         const SizedBox(height: 16),
 
-        ..._summaryData.map(
+        ..._summary.map(
           (item) => Padding(
             padding:
                 const EdgeInsets.only(bottom: 10),
@@ -533,11 +537,7 @@ class _LicenseManagementPageState
                     child: _Filter(
                       label: 'Organization',
                       value: _organization,
-                      options: const [
-                        '123 Inc',
-                        'Stackly',
-                        '456 Inc',
-                      ],
+                      options: _creatableOrgs,
                       compact: true,
                       onChanged: (value) {
                         setState(() {
@@ -553,10 +553,7 @@ class _LicenseManagementPageState
                     child: _Filter(
                       label: 'License Type',
                       value: _licenseType,
-                      options: const [
-                        'Standard',
-                        'Enterprise',
-                      ],
+                      options: _planOptions,
                       compact: true,
                       onChanged: (value) {
                         setState(() {
@@ -572,11 +569,7 @@ class _LicenseManagementPageState
                     child: _Filter(
                       label: 'Status',
                       value: _status,
-                      options: const [
-                        'Active',
-                        'Expiring',
-                        'Rejected',
-                      ],
+                      options: _statusOptions,
                       compact: true,
                       onChanged: (value) {
                         setState(() {
@@ -595,10 +588,7 @@ class _LicenseManagementPageState
               ),
 
               if (items.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Text(
-                    'No licenses found',
+                Padding(padding: const EdgeInsets.all(24), child: Text(_emptyText,
                     style: TextStyle(
                       color: _hint,
                       fontSize: 12,
@@ -608,8 +598,8 @@ class _LicenseManagementPageState
 
               const SizedBox(height: 4),
 
-              const Text(
-                'Showing 1-5 of 2,458 entries',
+              Text(
+                _showingText,
                 style: TextStyle(
                   fontSize: 10,
                   color: _hint,
@@ -742,8 +732,7 @@ class _LicenseManagementPageState
                   color: const Color(
                     0xFF243142,
                   ),
-                  onPressed:
-                      _showRenewLicenseDialog,
+                  onPressed: () => _showRenewLicenseDialog([index]),
                 ),
               ),
 
@@ -756,8 +745,7 @@ class _LicenseManagementPageState
                   label: 'Suspend',
                   color:
                       const Color(0xFFF1A000),
-                  onPressed:
-                      _showSuspendLicenseDialog,
+                  onPressed: () => _showSuspendLicenseDialog([index]),
                 ),
               ),
 
@@ -772,8 +760,7 @@ class _LicenseManagementPageState
                       const Color(0xFF00A875),
                   fill:
                       const Color(0xFFF1FBF7),
-                  onPressed:
-                      _showActivateLicenseDialog,
+                  onPressed: () => _showActivateLicenseDialog([index]),
                 ),
               ),
             ],
@@ -835,9 +822,32 @@ class _LicenseManagementPageState
                   const EdgeInsets.symmetric(
                 horizontal: 24,
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  SizedBox(width: 30),
+                  SizedBox(
+                    width: 30,
+                    child: Checkbox(
+                      tristate: true,
+                      value: items.isNotEmpty &&
+                              items.every((e) => _selected.contains(e.key))
+                          ? true
+                          : (items.any((e) => _selected.contains(e.key))
+                              ? null
+                              : false),
+                      activeColor: Colors.white,
+                      checkColor: _navy,
+                      side: const BorderSide(color: Colors.white, width: 1.5),
+                      onChanged: (_) {
+                        setState(() {
+                          final all = items.isNotEmpty &&
+                              items.every((e) => _selected.contains(e.key));
+                          for (final e in items) {
+                            all ? _selected.remove(e.key) : _selected.add(e.key);
+                          }
+                        });
+                      },
+                    ),
+                  ),
                   Expanded(
                     flex: 16,
                     child: Text(
@@ -882,10 +892,7 @@ class _LicenseManagementPageState
             ),
 
             if (items.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(32),
-                child: Text(
-                  'No licenses found',
+              Padding(padding: const EdgeInsets.all(32), child: Text(_emptyText,
                   style: TextStyle(
                     color: _hint,
                     fontSize: 13,
@@ -1032,46 +1039,363 @@ class _LicenseManagementPageState
   // ACTIONS
   // =========================================================================
 
+  static const _periodMonths = {
+    '6 Months': 6,
+    '1 Year': 12,
+    '2 Years': 24,
+    '3 Years': 36,
+  };
+
+  static const _monthNames = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+
+  String _fmtDate(DateTime d) =>
+      '${_monthNames[d.month - 1]} ${d.day.toString().padLeft(2, '0')}, ${d.year}';
+
+  DateTime? _parseDate(String s) {
+    final p = s.replaceAll(',', ' ').trim().split(RegExp(r'\s+'));
+    if (p.length < 3) return null;
+    final m = _monthNames.indexOf(p[0]);
+    final d = int.tryParse(p[1]);
+    final y = int.tryParse(p[2]);
+    if (m < 0 || d == null || y == null) return null;
+    return DateTime(y, m + 1, d);
+  }
+
+  DateTime _addMonths(DateTime d, int months) {
+    final last = DateTime(d.year, d.month + months + 1, 0).day;
+    return DateTime(d.year, d.month + months, d.day > last ? last : d.day);
+  }
+
+  String _generateKey(String org) {
+    final letters = org
+        .replaceAll(RegExp(r'[^A-Za-z]'), '')
+        .toUpperCase()
+        .padRight(4, 'X')
+        .substring(0, 4);
+    final rnd = math.Random();
+    String key;
+    do {
+      key = 'LIC-${1000 + rnd.nextInt(9000)}-$letters';
+    } while (_licenses.any((l) => l['key'] == key));
+    return key;
+  }
+
+  void _applyToKeys(
+    Iterable<dynamic> keys,
+    void Function(Map<String, String> license) change,
+  ) {
+    final wanted = keys.map((k) => k.toString()).toSet();
+    for (final license in _licenses) {
+      if (wanted.contains(license['key'])) change(license);
+    }
+  }
+
+  /// Rows the action should work on: the given rows, or the ticked rows.
+  List<int> _targets(List<int>? indices) {
+    if (indices != null) return indices;
+    return _selected.toList()..sort();
+  }
+
+  String _plural(int n, String word) => '$n $word${n == 1 ? '' : 's'}';
+
+  void _refresh() {
+    setState(() {
+      _searchController.clear();
+      _organization = null;
+      _licenseType = null;
+      _status = null;
+      _selected.clear();
+      _page = 1;
+    });
+    _toast('Filters cleared');
+  }
+
+  // ---- CREATE --------------------------------------------------------------
+
   Future<void> _showCreateLicenseDialog() async {
-    final r = await showCreateLicenseDialog(context);
+    final r = await showCreateLicenseDialog(
+      context,
+      organizations: _creatableOrgs,
+    );
     if (r == null || !mounted) return;
-    // TODO: save r -> organization, plan, type, seats, status,
-    //       startDate, expiryDate, autoRenew
-    _toast('License created');
+
+    final org = r['organization'] as String?;
+    final seats = r['seats'] as int? ?? 0;
+    if (org == null || org.isEmpty) {
+      return _toast('Please choose an organization.');
+    }
+    if (seats <= 0) {
+      return _toast('Number of seats must be greater than 0.');
+    }
+
+    final plan = (r['plan'] as String?) ?? 'Standard';
+    final ok = await showConfirmActionDialog(
+      context,
+      title: 'Create this license?',
+      message:
+          'A new $plan license with $seats seats will be created for $org.',
+      confirmText: 'Yes, create',
+      icon: Icons.add_circle_outline,
+    );
+    if (!ok || !mounted) return;
+
+    final key = _generateKey(org);
+    setState(() {
+      // New license goes to the top of the list.
+      _licenses.insert(0, {
+        'key': key,
+        'plan': plan,
+        'type': (r['type'] as String?) ?? plan,
+        'seats': '$seats Seats',
+        'org': org,
+        'expiry': _fmtDate(r['expiryDate'] as DateTime),
+        'status': (r['status'] as String?) ?? 'Active',
+      });
+      // Row numbers shifted, so reset selection and show the new row.
+      _selected.clear();
+      _searchController.clear();
+      _organization = null;
+      _licenseType = null;
+      _status = null;
+      _page = 1;
+    });
+    _toast('License $key created for $org');
   }
 
-  Future<void> _showExportOptionsDialog() async {
-    final r = await showExportLicenseDialog(context);
-    if (r == null || !mounted) return;
-    // TODO: r -> columns, startDate, endDate, format (CSV / PDF / XLSX)
-    _toast('Export started');
+  // ---- EXPORT --------------------------------------------------------------
+
+
+Future<void> _showExportOptionsDialog() async {
+  final r = await showExportLicenseDialog(context);
+  if (r == null || !mounted) return;
+
+  final columns = List<String>.from(r['columns'] as List);
+  final format = ((r['format'] as String?) ?? 'CSV').toUpperCase();
+
+  // Export the licenses matching the current search and filters.
+  final licenses = _filtered.map((entry) => entry.value).toList();
+
+  if (licenses.isEmpty) {
+    _toast('Nothing to export - no licenses match the current filters.');
+    return;
   }
 
-  Future<void> _showRenewLicenseDialog() async {
-    if (_selectedLicenses.isEmpty) return _showSelectLicenseMessage();
-    final r =
-        await showRenewLicenseDialog(context, licenses: _selectedLicenses);
-    if (r == null || !mounted) return;
-    // TODO: r -> licenses (keys), period, newExpiry, reason
-    _toast('Licenses renewed');
+  String valueFor(Map<String, String> license, String column) {
+    switch (column) {
+      case 'License Key':
+        return license['key'] ?? '';
+
+      case 'Organization Plan':
+        return '${license['plan'] ?? ''} (${license['seats'] ?? ''})';
+
+      case 'License Type':
+        return license['type'] ?? license['plan'] ?? '';
+
+      case 'Expiry Date':
+        return license['expiry'] ?? '';
+
+      case 'License Status':
+        return license['status'] ?? '';
+
+      default:
+        return '';
+    }
   }
 
-  Future<void> _showSuspendLicenseDialog() async {
-    if (_selectedLicenses.isEmpty) return _showSelectLicenseMessage();
-    final r =
-        await showSuspendLicenseDialog(context, licenses: _selectedLicenses);
+  final rows = <List<Object?>>[
+    for (final license in licenses)
+      [for (final column in columns) valueFor(license, column)],
+  ];
+
+  try {
+    switch (format) {
+      case 'CSV':
+        await exportChartCsv(
+          fileName: 'license_management_report',
+          headers: columns,
+          rows: rows,
+        );
+        break;
+
+      case 'XLSX':
+      case 'EXCEL':
+        await exportChartExcel(
+          fileName: 'license_management_report',
+          headers: columns,
+          rows: rows,
+        );
+        break;
+
+      case 'PDF':
+        await exportChartPdf(
+          fileName: 'license_management_report',
+          headers: columns,
+          rows: rows,
+        );
+        break;
+
+      default:
+        _toast('Unsupported export format: $format');
+        return;
+    }
+
+    if (!mounted) return;
+    _toast('${licenses.length} licenses exported successfully.');
+  } catch (e) {
+    if (!mounted) return;
+    _toast('Export failed: $e');
+  }
+}
+
+  // ---- RENEW ---------------------------------------------------------------
+
+  Future<void> _showRenewLicenseDialog([List<int>? indices]) async {
+    final targets = _targets(indices);
+    if (targets.isEmpty) return _showSelectLicenseMessage();
+
+    final r = await showRenewLicenseDialog(
+      context,
+      licenses: [for (final i in targets) _licenses[i]],
+    );
     if (r == null || !mounted) return;
-    // TODO: r -> licenses (keys), reason
-    _toast('Licenses suspended');
+
+    final keys = List<dynamic>.from(r['licenses'] as List);
+    final period = (r['period'] as String?) ?? '1 Year';
+    final months = _periodMonths[period] ?? 12;
+    if (keys.isEmpty) return;
+
+    final ok = await showConfirmActionDialog(
+      context,
+      title: 'Renew ${_plural(keys.length, 'license')}?',
+      message:
+          'The validity of ${_plural(keys.length, 'license')} will be extended by $period.',
+      confirmText: 'Yes, renew',
+      icon: Icons.sync,
+    );
+    if (!ok || !mounted) return;
+
+    final now = DateTime.now();
+    final reason = (r['reason'] as String?) ?? '';
+    setState(() {
+      _applyToKeys(keys, (l) {
+        final current = _parseDate(l['expiry'] ?? '');
+        final base = (current != null && current.isAfter(now)) ? current : now;
+        l['expiry'] = _fmtDate(_addMonths(base, months));
+        if (l['status'] == 'Expiring') l['status'] = 'Active';
+        if (reason.isNotEmpty) l['renewReason'] = reason;
+      });
+      _selected.removeAll(targets);
+    });
+    _toast('${_plural(keys.length, 'license')} renewed for $period');
   }
 
-  Future<void> _showActivateLicenseDialog() async {
-    if (_selectedLicenses.isEmpty) return _showSelectLicenseMessage();
-    final r =
-        await showActivateLicenseDialog(context, licenses: _selectedLicenses);
+  // ---- SUSPEND -------------------------------------------------------------
+
+  Future<void> _showSuspendLicenseDialog([List<int>? indices]) async {
+    final targets = _targets(indices);
+    if (targets.isEmpty) return _showSelectLicenseMessage();
+
+    // Only Active / Expiring licenses can be suspended.
+    final eligible = targets
+        .where((i) =>
+            _licenses[i]['status'] == 'Active' ||
+            _licenses[i]['status'] == 'Expiring')
+        .toList();
+    if (eligible.isEmpty) {
+      return _toast('Only Active or Expiring licenses can be suspended.');
+    }
+
+    final r = await showSuspendLicenseDialog(
+      context,
+      licenses: [for (final i in eligible) _licenses[i]],
+    );
     if (r == null || !mounted) return;
-    // TODO: r -> licenses (keys), activationDate, reason
-    _toast('Licenses activated');
+
+    final keys = List<dynamic>.from(r['licenses'] as List);
+    final reason = (r['reason'] as String?) ?? '';
+    if (keys.isEmpty) return;
+
+    final ok = await showConfirmActionDialog(
+      context,
+      title: 'Are you sure?',
+      message:
+          '${_plural(keys.length, 'license')} will be suspended and the organization '
+          'will lose access until it is activated again.\n\nReason: $reason',
+      confirmText: 'Yes, suspend',
+      icon: Icons.pause_circle_outline,
+      color: const Color(0xFFE44D55),
+    );
+    if (!ok || !mounted) return;
+
+    setState(() {
+      _applyToKeys(keys, (l) {
+        l['status'] = 'Suspended';
+        l['suspendReason'] = reason;
+      });
+      _selected.removeAll(targets);
+    });
+
+    final skipped = targets.length - eligible.length;
+    _toast(
+      '${_plural(keys.length, 'license')} suspended'
+      '${skipped > 0 ? ' ($skipped skipped - not Active/Expiring)' : ''}',
+    );
+  }
+
+  // ---- ACTIVATE ------------------------------------------------------------
+
+  Future<void> _showActivateLicenseDialog([List<int>? indices]) async {
+    final targets = _targets(indices);
+    if (targets.isEmpty) return _showSelectLicenseMessage();
+
+    // Only Suspended / Rejected licenses need activating.
+    final eligible = targets
+        .where((i) =>
+            _licenses[i]['status'] == 'Suspended' ||
+            _licenses[i]['status'] == 'Rejected')
+        .toList();
+    if (eligible.isEmpty) {
+      return _toast('Only Suspended or Rejected licenses can be activated.');
+    }
+
+    final r = await showActivateLicenseDialog(
+      context,
+      licenses: [for (final i in eligible) _licenses[i]],
+    );
+    if (r == null || !mounted) return;
+
+    final keys = List<dynamic>.from(r['licenses'] as List);
+    if (keys.isEmpty) return;
+
+    final ok = await showConfirmActionDialog(
+      context,
+      title: 'Activate ${_plural(keys.length, 'license')}?',
+      message:
+          '${_plural(keys.length, 'license')} will become available for the organization again.',
+      confirmText: 'Yes, activate',
+      icon: Icons.play_circle_outline,
+      color: const Color(0xFF00A875),
+    );
+    if (!ok || !mounted) return;
+
+    final activateReason = (r['reason'] as String?) ?? '';
+    setState(() {
+      _applyToKeys(keys, (l) {
+        l['status'] = 'Active';
+        l.remove('suspendReason');
+        if (activateReason.isNotEmpty) l['activateReason'] = activateReason;
+      });
+      _selected.removeAll(targets);
+    });
+
+    final skipped = targets.length - eligible.length;
+    _toast(
+      '${_plural(keys.length, 'license')} activated'
+      '${skipped > 0 ? ' ($skipped skipped - already Active/Expiring)' : ''}',
+    );
   }
 
   void _toast(String m) {
@@ -1340,60 +1664,35 @@ class _LicenseManagementPageState
   }
 
   Widget _pagination() {
+    final pages = _totalPages;
+    final current = _safePage;
+    var start = math.max(1, current - 2);
+    final end = math.min(pages, start + 4);
+    start = math.max(1, end - 4);
+
     return Row(
-      mainAxisSize:
-          MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       children: [
         _PageBtn(
-          icon:
-              Icons.chevron_left,
-          enabled: _page > 1,
-          onTap: () {
-            setState(() {
-              _page--;
-            });
-          },
+          icon: Icons.chevron_left,
+          enabled: current > 1,
+          onTap: () => setState(() => _page = current - 1),
         ),
+        for (var p = start; p <= end; p++)
+          _PageBtn(
+            text: '$p',
+            selected: p == current,
+            onTap: () => setState(() => _page = p),
+          ),
         _PageBtn(
-          text: '1',
-          selected: _page == 1,
-          onTap: () {
-            setState(() {
-              _page = 1;
-            });
-          },
-        ),
-        _PageBtn(
-          text: '2',
-          selected: _page == 2,
-          onTap: () {
-            setState(() {
-              _page = 2;
-            });
-          },
-        ),
-        _PageBtn(
-          text: '3',
-          selected: _page == 3,
-          onTap: () {
-            setState(() {
-              _page = 3;
-            });
-          },
-        ),
-        _PageBtn(
-          icon:
-              Icons.chevron_right,
-          enabled: _page < 3,
-          onTap: () {
-            setState(() {
-              _page++;
-            });
-          },
+          icon: Icons.chevron_right,
+          enabled: current < pages,
+          onTap: () => setState(() => _page = current + 1),
         ),
       ],
     );
   }
+
 }
 
 // =============================================================================
@@ -1419,42 +1718,6 @@ class _SummaryData {
     this.trend,
   });
 }
-
-const _summaryData = [
-  _SummaryData(
-    title: 'Total Licenses',
-    value: '2,458',
-    icon: Icons.key_outlined,
-    iconBg: Color(0xFFEAF1FF),
-    iconColor: Color(0xFF3974E8),
-    trend: '↑ 12%',
-    caption: ' vs last month',
-  ),
-  _SummaryData(
-    title: 'Active Licenses',
-    value: '2,104',
-    icon: Icons.check_circle_outline,
-    iconBg: Color(0xFFDDF8EC),
-    iconColor: Color(0xFF16B77A),
-    caption: '85.6% utilization rate',
-  ),
-  _SummaryData(
-    title: 'Expired licenses',
-    value: '142',
-    icon: Icons.warning_amber_outlined,
-    iconBg: Color(0xFFFFF2C8),
-    iconColor: Color(0xFFF1A900),
-    caption: 'Within next 30 days',
-  ),
-  _SummaryData(
-    title: 'Suspended licenses',
-    value: '36',
-    icon: Icons.block_outlined,
-    iconBg: Color(0xFFFFE7E8),
-    iconColor: Color(0xFFE44D55),
-    caption: 'Requires admin review',
-  ),
-];
 
 class _SummaryCard extends StatelessWidget {
   final _SummaryData data;
@@ -1595,6 +1858,11 @@ class _StatusBadge
       case 'Expiring':
         bg = const Color(0xFFFFF3D5);
         fg = const Color(0xFFE99500);
+        break;
+
+      case 'Suspended':
+        bg = const Color(0xFFE5E7EB);
+        fg = const Color(0xFF4B5563);
         break;
 
       default:

@@ -65,6 +65,120 @@ Future<Map<String, dynamic>?> showActivateLicenseDialog(
   );
 }
 
+/// "Are you sure?" popup shown after a form popup is submitted.
+/// Returns true only when the user presses the confirm button.
+Future<bool> showConfirmActionDialog(
+  BuildContext context, {
+  required String title,
+  required String message,
+  required String confirmText,
+  IconData icon = Icons.help_outline,
+  Color? color,
+}) async {
+  final c = color ?? _blue;
+  final r = await showDialog<bool>(
+    context: context,
+    barrierColor: Colors.black54,
+    builder: (ctx) => Dialog(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 380),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: c.withValues(alpha: .12),
+                  ),
+                  child: Icon(icon, color: c, size: 24),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Onest',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: _ink,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Onest',
+                  fontSize: 12,
+                  height: 1.4,
+                  color: _muted,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(ctx).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _ink,
+                        side: const BorderSide(color: _line),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      child: const Text(
+                        'No, go back',
+                        style: TextStyle(fontFamily: 'Onest', fontSize: 11.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(ctx).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: c,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      child: Text(
+                        confirmText,
+                        style: const TextStyle(
+                          fontFamily: 'Onest',
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+  return r == true;
+}
+
 // ─────────────────────────────────────────────────────────────
 //  Shared style + helpers
 // ─────────────────────────────────────────────────────────────
@@ -519,7 +633,11 @@ class _StatusBadge extends StatelessWidget {
         fg = const Color(0xFFB45309);
         bg = const Color(0xFFFEF3C7);
         break;
-      default: // Rejected / Suspended / Expired
+      case 'suspended':
+        fg = const Color(0xFF4B5563);
+        bg = const Color(0xFFE5E7EB);
+        break;
+      default: // Rejected / Expired
         fg = const Color(0xFFDC2626);
         bg = const Color(0xFFFEE2E2);
     }

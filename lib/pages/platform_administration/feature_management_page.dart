@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../../utils/chart_csv_export.dart';
 
 class FeatureManagementPage extends StatefulWidget {
   const FeatureManagementPage({super.key});
@@ -1237,12 +1237,73 @@ class _FeatureManagementPageState extends State<FeatureManagementPage> {
               dialogContext,
               confirmLabel: 'Download Export',
               confirmIcon: Icons.download_outlined,
-              onConfirm: () {
-                Navigator.of(dialogContext).pop();
-                // TODO: call your real export here using
-                //   nameCtrl.text, scope, format, interval, sections
-                _toast('Export started', '${nameCtrl.text} · $format');
-              },
+              onConfirm: () async {
+              Navigator.of(dialogContext).pop();
+
+              final reportName = nameCtrl.text.trim().isEmpty
+                  ? 'Feature_Management_Report'
+                  : nameCtrl.text.trim();
+
+              // Select records according to the chosen export scope.
+              final List<Map<String, dynamic>> exportFeatures =
+                  _features.where((feature) {
+                if (scope == 'Enabled Features (52 records)') {
+                  return feature['enabled'] == true;
+                }
+
+                if (scope == 'Disabled Features (13 records)') {
+                  return feature['enabled'] == false;
+                }
+
+                return true;
+              }).toList();
+
+              const headers = [
+                'Feature Name',
+                'Module',
+                'License Plan',
+                'Status',
+              ];
+
+              final rows = exportFeatures.map((feature) {
+                return <Object?>[
+                  feature['name'],
+                  feature['module'],
+                  feature['plan'],
+                  feature['enabled'] == true ? 'Enabled' : 'Disabled',
+                ];
+              }).toList();
+
+              try {
+                if (format == 'CSV (Comma Separated)') {
+                  await exportChartCsv(
+                    fileName: reportName,
+                    headers: headers,
+                    rows: rows,
+                  );
+                } else if (format == 'Excel (.xlsx)') {
+                  await exportChartExcel(
+                    fileName: reportName,
+                    headers: headers,
+                    rows: rows,
+                  );
+                } else if (format == 'PDF Document') {
+                  await exportChartPdf(
+                    fileName: reportName,
+                    headers: headers,
+                    rows: rows,
+                  );
+                }
+
+                if (mounted) {
+                  _toast('Export completed', reportName);
+                }
+              } catch (e) {
+                if (mounted) {
+                  _toast('Export failed', e.toString());
+                }
+              }
+            },
             ),
           );
         },

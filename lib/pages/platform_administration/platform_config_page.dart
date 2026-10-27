@@ -75,7 +75,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
           child: SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
               isMobile ? 16 : 24,
-              isMobile ? 18 : 18,
+              isMobile ? 16 : 24,
               isMobile ? 16 : 24,
               isMobile ? 28 : 24,
             ),
@@ -110,16 +110,16 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                   Text(
                     'Platform Configuration',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 26,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF172033),
+                      color: Color(0xFF172536),
                     ),
                   ),
                   SizedBox(height: 3),
                   Text(
                     'Manage core platform settings, regional defaults, and security handling.',
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 13,
                       color: Color(0xFF64748B),
                     ),
                   ),
@@ -135,7 +135,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 20),
 
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,22 +146,22 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                 children: [
                   _buildBasicConfiguration(),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
 
                   _buildRegionalConfiguration(),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
 
                   _buildCommunicationIntegration(),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
 
                   _buildDeploymentNote(),
                 ],
               ),
             ),
 
-            const SizedBox(width: 10),
+            const SizedBox(width: 16),
 
             Expanded(
               flex: 4,
@@ -188,29 +188,29 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
         const Text(
           'Platform Configuration',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF172033),
+            color: Color(0xFF172536),
           ),
         ),
 
-        const SizedBox(height: 15),
+        const SizedBox(height: 16),
 
         _buildBasicConfiguration(),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
 
         _buildRegionalConfiguration(),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
 
         _buildSecurityHandling(),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
 
         _buildCommunicationIntegration(),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
 
         _buildDeploymentNote(),
 
@@ -246,21 +246,21 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
           TextSpan(
             text: 'Platform Administration',
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 12,
               color: Color(0xFF9AA9BD),
             ),
           ),
           TextSpan(
             text: '  /  ',
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 12,
               color: Color(0xFFCBD5E1),
             ),
           ),
           TextSpan(
             text: 'Platform Configuration',
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 12,
               color: Color(0xFF718096),
               fontWeight: FontWeight.w500,
             ),
@@ -465,7 +465,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                 Text(
                   'System Health',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1E293B),
                   ),
@@ -474,7 +474,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                 Text(
                   'Optimal State',
                   style: TextStyle(
-                    fontSize: 9.5,
+                    fontSize: 12,
                     color: Color(0xFF00A66A),
                     fontWeight: FontWeight.w600,
                   ),
@@ -512,7 +512,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1E293B),
                   ),
@@ -523,7 +523,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                 Text(
                   description,
                   style: const TextStyle(
-                    fontSize: 9,
+                    fontSize: 12,
                     height: 1.35,
                     color: Color(0xFF64748B),
                   ),
@@ -612,7 +612,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF1E293B),
                   ),
@@ -623,7 +623,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    fontSize: 9,
+                    fontSize: 12,
                     color: Color(0xFF64748B),
                   ),
                 ),
@@ -634,7 +634,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
           const SizedBox(width: 8),
 
           SizedBox(
-            height: 27,
+            height: 32,
             child: OutlinedButton(
               onPressed: onConfigure,
               style: OutlinedButton.styleFrom(
@@ -652,7 +652,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
               child: const Text(
                 'Configure',
                 style: TextStyle(
-                  fontSize: 9,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -696,7 +696,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                 Text(
                   'Deployment Note',
                   style: TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF334155),
                   ),
@@ -707,7 +707,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                 Text(
                   'Changes to Core Platform configurations may require a service restart for integrated modules to reflect the updates completely.',
                   style: TextStyle(
-                    fontSize: 9,
+                    fontSize: 12,
                     height: 1.4,
                     color: Color(0xFF64748B),
                   ),
@@ -772,7 +772,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1E293B),
                   ),
@@ -801,7 +801,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
     return Text(
       text,
       style: const TextStyle(
-        fontSize: 9,
+        fontSize: 11,
         fontWeight: FontWeight.w600,
         color: Color(0xFF475569),
       ),
@@ -812,19 +812,19 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
     required TextEditingController controller,
   }) {
     return SizedBox(
-      height: 36,
+      height: 44,
       child: TextField(
         controller: controller,
         style: const TextStyle(
-          fontSize: 10.5,
+          fontSize: 13,
           color: Color(0xFF334155),
         ),
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFF8FAFC),
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 8,
+            horizontal: 12,
+            vertical: 12,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -867,7 +867,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
         const SizedBox(height: 5),
 
         SizedBox(
-          height: 36,
+          height: 44,
           child: DropdownButtonFormField<String>(
             value: value,
             isExpanded: true,
@@ -877,15 +877,15 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
               color: Color(0xFF64748B),
             ),
             style: const TextStyle(
-              fontSize: 9.5,
+              fontSize: 13,
               color: Color(0xFF334155),
             ),
             decoration: InputDecoration(
               filled: true,
               fillColor: const Color(0xFFF8FAFC),
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 9,
-                vertical: 8,
+                horizontal: 12,
+                vertical: 12,
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
@@ -923,7 +923,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
   // ============================================================
 
   Widget _buildCancelButton({
-    double height = 30,
+    double height = 34,
   }) {
     return SizedBox(
       height: height,
@@ -944,7 +944,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
         child: const Text(
           'Cancel',
           style: TextStyle(
-            fontSize: 9,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -953,7 +953,7 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
   }
 
   Widget _buildSaveButton({
-    double height = 30,
+    double height = 34,
   }) {
     return SizedBox(
       height: height,
@@ -961,12 +961,12 @@ class _PlatformConfigPageState extends State<PlatformConfigPage> {
         onPressed: _saveConfiguration,
         icon: const Icon(
           Icons.save_outlined,
-          size: 13,
+          size: 16,
         ),
         label: const Text(
           'Save',
           style: TextStyle(
-            fontSize: 9,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),

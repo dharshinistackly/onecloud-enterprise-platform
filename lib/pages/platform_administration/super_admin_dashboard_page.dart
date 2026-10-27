@@ -3,16 +3,11 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/dashboard_dialogs.dart';
+import '../../utils/chart_csv_export.dart';
 
 /// Super Admin Dashboard (KPIs, system status, alerts, login activity).
-///
 /// It is a normal page now: it opens from
-///   * the "Super Admin Dashboard" card on the Platform Administration landing page
-///   * the "Super Admin Dashboard" item in the sidebar
-/// and is registered as `AppRoutes.superAdminDashboard`.
-///
-/// The page content lives in [_SuperAdminContent] so its `BuildContext` is
-/// inside the shell's content navigator (pushNamed keeps header + sidebar).
+
 class SuperAdminDashboardPage extends StatelessWidget {
   const SuperAdminDashboardPage({super.key});
 
@@ -25,9 +20,8 @@ class SuperAdminDashboardPage extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Local aliases of the shared tokens (lib/theme/app_theme.dart)
-// ---------------------------------------------------------------------------
+
 const _ink = AppColors.ink;
 const _muted = AppColors.muted;
 const _hint = AppColors.hint;
@@ -103,7 +97,7 @@ class _SuperAdminContentState extends State<_SuperAdminContent> {
     _NavItem('Audit Logs', 'Admin actions', Icons.fact_check_outlined,
         AppRoutes.auditLogs),
     _NavItem('Notifications', 'Notification centre',
-        Icons.notifications_none_rounded, AppRoutes.inAppNotifications),
+        Icons.notifications_none_rounded, AppRoutes.notifications),
     _NavItem('Backup', 'Snapshots', Icons.inventory_2_outlined, null),
     _NavItem('Reports', 'Analytics', Icons.show_chart_rounded,
         AppRoutes.standardReports),
@@ -161,13 +155,81 @@ class _SuperAdminContentState extends State<_SuperAdminContent> {
       _toast('$title page will be connected soon.');
     }
   }
-
   Future<void> _export() async {
-    final options = await showExportReportDialog(context);
-    if (options != null && mounted) {
-      _toast('Report export started');
+  final options = await showExportReportDialog(context);
+
+  if (options == null || !mounted) return;
+
+  try {
+    final headers = ['Category', 'Name', 'Value', 'Details'];
+
+    final rows = <List<Object?>>[
+      ..._stats.map((s) => [
+            'Overview',
+            s.label,
+            s.value,
+            s.delta,
+          ]),
+      ..._status.map((s) => [
+            'System Status',
+            s.label,
+            s.value,
+            '',
+          ]),
+      ..._resources.map((r) => [
+            'Resource Usage',
+            r.label,
+            '${r.percent}%',
+            '',
+          ]),
+      ..._alerts.map((a) => [
+            'Security Alert',
+            a.title,
+            a.message,
+            '',
+          ]),
+      ..._logins.map((l) => [
+            'Login Activity',
+            l.who,
+            l.what,
+            l.time,
+          ]),
+    ];
+
+    switch (options.format) {
+      case ExportFormat.csv:
+        await exportChartCsv(
+          fileName: 'super_admin_dashboard',
+          headers: headers,
+          rows: rows,
+        );
+        break;
+
+      case ExportFormat.excel:
+        await exportChartExcel(
+          fileName: 'super_admin_dashboard',
+          headers: headers,
+          rows: rows,
+        );
+        break;
+
+      case ExportFormat.pdf:
+        await exportChartPdf(
+          fileName: 'super_admin_dashboard',
+          headers: headers,
+          rows: rows,
+        );
+        break;
     }
+
+    if (!mounted) return;
+
+    _toast('${options.format.name.toUpperCase()} export completed.');
+  } catch (e) {
+    if (!mounted) return;
+    _toast('Export failed: $e');
   }
+}
 
   void _refresh() {
     setState(() {});

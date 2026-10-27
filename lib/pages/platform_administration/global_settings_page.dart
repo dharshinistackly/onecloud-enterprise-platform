@@ -95,12 +95,12 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
         final bool isMobile = constraints.maxWidth < 700;
 
         return Container(
-          color: const Color(0xFFF8FAFC),
+          color: const Color(0xFFF7F9FC),
           child: SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
-              isMobile ? 14 : 16,
-              isMobile ? 18 : 14,
-              isMobile ? 14 : 16,
+              isMobile ? 16 : 24,
+              isMobile ? 16 : 24,
+              isMobile ? 16 : 24,
               isMobile ? 90 : 24,
             ),
             child: isMobile
@@ -131,9 +131,9 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
               child: Text(
                 'Global Settings',
                 style: TextStyle(
-                  fontSize: 21,
+                  fontSize: 26,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF172033),
+                  color: Color(0xFF172536),
                 ),
               ),
             ),
@@ -141,7 +141,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
             const Text(
               'Refresh',
               style: TextStyle(
-                fontSize: 9,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF64748B),
               ),
@@ -226,9 +226,9 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
         const Text(
           'Global Settings',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF172033),
+            color: Color(0xFF172536),
           ),
         ),
 
@@ -294,21 +294,21 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
           TextSpan(
             text: 'Platform Administration',
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 12,
               color: Color(0xFF94A3B8),
             ),
           ),
           TextSpan(
             text: '  /  ',
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 12,
               color: Color(0xFFCBD5E1),
             ),
           ),
           TextSpan(
             text: 'Global Settings',
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 12,
               color: Color(0xFF94A3B8),
               fontWeight: FontWeight.w500,
             ),
@@ -420,7 +420,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1E293B),
                   ),
@@ -431,7 +431,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
                 Text(
                   description,
                   style: const TextStyle(
-                    fontSize: 9.5,
+                    fontSize: 12,
                     height: 1.35,
                     color: Color(0xFF64748B),
                   ),
@@ -666,7 +666,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
                     Text(
                       'Multi-Factor Authentication',
                       style: TextStyle(
-                        fontSize: 10.5,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF1E293B),
                       ),
@@ -675,7 +675,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
                     Text(
                       'Requires a second verification step at sign-in, platform-wide.',
                       style: TextStyle(
-                        fontSize: 9,
+                        fontSize: 12,
                         color: Color(0xFF64748B),
                       ),
                     ),
@@ -745,7 +745,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
     required ValueChanged<bool?> onChanged,
   }) {
     return SizedBox(
-      height: 29,
+      height: 34,
       child: Row(
         children: [
           SizedBox(
@@ -770,7 +770,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 9.5,
+              fontSize: 12,
               color: Color(0xFF334155),
             ),
           ),
@@ -812,7 +812,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 9.5,
+              fontSize: 12,
               color: Color(0xFF64748B),
             ),
           ),
@@ -820,7 +820,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 9.5,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: Color(0xFF334155),
           ),
@@ -899,7 +899,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
                     Text(
                       'Maintenance mode',
                       style: TextStyle(
-                        fontSize: 10.5,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF1E293B),
                       ),
@@ -908,7 +908,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
                     Text(
                       'Blocks tenant access platform-wide during scheduled updates.',
                       style: TextStyle(
-                        fontSize: 9,
+                        fontSize: 12,
                         color: Color(0xFF64748B),
                       ),
                     ),
@@ -938,7 +938,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
         const Text(
           'Maximum file upload size',
           style: TextStyle(
-            fontSize: 9.5,
+            fontSize: 11,
             fontWeight: FontWeight.w600,
             color: Color(0xFF334155),
           ),
@@ -947,12 +947,12 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
         const SizedBox(height: 5),
 
         SizedBox(
-          height: 37,
+          height: 44,
           child: TextField(
             controller: maximumFileUploadController,
             keyboardType: TextInputType.number,
             style: const TextStyle(
-              fontSize: 10,
+              fontSize: 13,
               color: Color(0xFF334155),
             ),
             decoration: InputDecoration(
@@ -963,7 +963,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
               ),
               suffixText: 'MB',
               suffixStyle: const TextStyle(
-                fontSize: 9,
+                fontSize: 12,
                 color: Color(0xFF94A3B8),
               ),
               enabledBorder: OutlineInputBorder(
@@ -987,7 +987,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
         const Text(
           'Must be a positive value within the allowed platform limit',
           style: TextStyle(
-            fontSize: 8,
+            fontSize: 11,
             color: Color(0xFF94A3B8),
           ),
         ),
@@ -1035,7 +1035,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
             child: Text(
               title,
               style: const TextStyle(
-                fontSize: 11.5,
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF1E293B),
               ),
@@ -1072,7 +1072,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
               TextSpan(
                 text: label,
                 style: const TextStyle(
-                  fontSize: 9.5,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF475569),
                 ),
@@ -1081,7 +1081,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
                 const TextSpan(
                   text: ' *',
                   style: TextStyle(
-                    fontSize: 9.5,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFFEF4444),
                   ),
@@ -1093,11 +1093,11 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
         const SizedBox(height: 5),
 
         SizedBox(
-          height: 37,
+          height: 44,
           child: TextField(
             controller: controller,
             style: const TextStyle(
-              fontSize: 10,
+              fontSize: 13,
               color: Color(0xFF334155),
             ),
             decoration: InputDecoration(
@@ -1128,7 +1128,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
           Text(
             helperText,
             style: const TextStyle(
-              fontSize: 8,
+              fontSize: 11,
               color: Color(0xFF94A3B8),
             ),
           ),
@@ -1180,7 +1180,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
   // ============================================================
 
   Widget _buildResetButton({
-    double height = 30,
+    double height = 34,
   }) {
     return SizedBox(
       height: height,
@@ -1201,7 +1201,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
         child: const Text(
           'Reset',
           style: TextStyle(
-            fontSize: 9,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -1214,7 +1214,7 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
   // ============================================================
 
   Widget _buildSaveButton({
-    double height = 30,
+    double height = 34,
   }) {
     return SizedBox(
       height: height,
@@ -1222,12 +1222,12 @@ class _GlobalSettingsPageState extends State<GlobalSettingsPage> {
         onPressed: _saveSettings,
         icon: const Icon(
           Icons.save_outlined,
-          size: 13,
+          size: 16,
         ),
         label: const Text(
           'Save',
           style: TextStyle(
-            fontSize: 9,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),

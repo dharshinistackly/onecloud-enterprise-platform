@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:one_cloud_enterprise/widgets/dashboard_dialogs.dart';
+import '../../utils/chart_csv_export.dart';
 
 class GlobalDashboardPage extends StatefulWidget {
   const GlobalDashboardPage({super.key});
@@ -204,16 +205,75 @@ class _GlobalDashboardPageState extends State<GlobalDashboardPage> {
   // BUILD
   // -------------------------------------------------------------------------
 
-  Future<void> _openExportDialog() async {
-    final ExportOptions? options = await showExportReportDialog(context);
-    if (options == null) return;
-    // TODO: run your real export here using
-    // options.format / options.range / options.includeCharts / options.includeTables
+  
+Future<void> _openExportDialog() async {
+  final ExportOptions? options =
+      await showExportReportDialog(context);
+
+  if (options == null || !mounted) return;
+
+  try {
+    final rows = List<List<Object?>>.generate(
+      _labels.length,
+      (index) => [
+        _labels[index],
+        _series[0][index],
+        _series[1][index],
+        _series[2][index],
+      ],
+    );
+
+    const headers = [
+      'Date',
+      'Operational',
+      'Degraded',
+      'Down',
+    ];
+
+    switch (options.format) {
+      case ExportFormat.csv:
+        await exportChartCsv(
+          fileName: 'global_dashboard_chart',
+          headers: headers,
+          rows: rows,
+        );
+        break;
+
+      case ExportFormat.excel:
+        await exportChartExcel(
+          fileName: 'global_dashboard_chart',
+          headers: headers,
+          rows: rows,
+        );
+        break;
+
+      case ExportFormat.pdf:
+        await exportChartPdf(
+          fileName: 'global_dashboard_chart',
+          headers: headers,
+          rows: rows,
+        );
+        break;
+    }
+
     if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Export started')),
+      SnackBar(
+        content: Text(
+          '${options.format.name.toUpperCase()} export completed.',
+        ),
+      ),
+    );
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Export failed: $e')),
     );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../providers/menu_provider.dart';
 import '../routes/app_routes.dart';
+import '../pages/notification/notification_store.dart';
+import 'notification_popup.dart';
 import 'sidebar.dart';
 
 class AppShell extends StatefulWidget {
@@ -54,6 +56,15 @@ class _AppShellState extends State<AppShell> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+  }
+
+  /// Bell icon: opens the notification pop-up. "View all notifications"
+  /// opens the full Notifications page inside the content area.
+  void _openNotifications() {
+    showNotificationPopup(
+      context,
+      onViewAll: () => _navigateContent(AppRoutes.notifications),
+    );
   }
 
   void _navigateContent(String route) {
@@ -264,18 +275,7 @@ Widget _buildHeader({
                       ),
                     ),
                     child: IconButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context)
-                          ..hideCurrentSnackBar()
-                          ..showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'No new notifications',
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                      },
+                      onPressed: _openNotifications,
                       icon: const Icon(
                         Icons.notifications_none_rounded,
                         color: Color(0xFF536576),
@@ -286,13 +286,18 @@ Widget _buildHeader({
                   Positioned(
                     top: 4,
                     right: 2,
-                    child: Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE63946),
-                        shape: BoxShape.circle,
-                      ),
+                    child: ListenableBuilder(
+                      listenable: NotificationStore.instance,
+                      builder: (context, _) => NotificationStore.instance.unreadCount == 0
+                          ? const SizedBox.shrink()
+                          : Container(
+                              width: 7,
+                              height: 7,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFE63946),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -501,16 +506,7 @@ Widget _buildHeader({
           clipBehavior: Clip.none,
           children: [
             IconButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(
-                    const SnackBar(
-                      content: Text('No new notifications'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-              },
+              onPressed: _openNotifications,
               icon: const Icon(
                 Icons.notifications_none_rounded,
                 color: Color(0xFF475569),
@@ -520,13 +516,18 @@ Widget _buildHeader({
             Positioned(
               top: 10,
               right: 10,
-              child: Container(
-                width: 7,
-                height: 7,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEF4444),
-                  shape: BoxShape.circle,
-                ),
+              child: ListenableBuilder(
+                listenable: NotificationStore.instance,
+                builder: (context, _) => NotificationStore.instance.unreadCount == 0
+                    ? const SizedBox.shrink()
+                    : Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
               ),
             ),
           ],

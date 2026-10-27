@@ -126,7 +126,58 @@ class MenuProvider extends ChangeNotifier {
   ],
 ),
 
-        
+// ------------------------------------------------------------
+// TENANT MANAGEMENT
+// ------------------------------------------------------------
+MenuGroupModel(
+  title: 'Tenant Management',
+  icon: Icons.business_outlined,
+  color: const Color(0xFF1677C8),
+  items: [
+    MenuItemModel(
+      title: 'Tenant Management',
+      icon: Icons.business_outlined,
+      color: const Color(0xFF1677C8),
+      route: '/tenant-management',
+    ),
+    MenuItemModel(
+      title: 'Create Tenant',
+      icon: Icons.add_business_outlined,
+      color: const Color(0xFF1677C8),
+      route: '/create-tenant',
+    ),
+    MenuItemModel(
+      title: 'Tenant Configuration',
+      icon: Icons.settings_outlined,
+      color: const Color(0xFF1677C8),
+      route: '/tenant-configuration',
+    ),
+    MenuItemModel(
+      title: 'Tenant Branding',
+      icon: Icons.palette_outlined,
+      color: const Color(0xFF1677C8),
+      route: '/tenant-branding',
+    ),
+    MenuItemModel(
+      title: 'Tenant Database',
+      icon: Icons.storage_outlined,
+      color: const Color(0xFF1677C8),
+      route: '/tenant-database',
+    ),
+    MenuItemModel(
+      title: 'Tenant Isolation',
+      icon: Icons.security_outlined,
+      color: const Color(0xFF1677C8),
+      route: '/tenant-isolation',
+    ),
+    MenuItemModel(
+      title: 'Tenant Backup',
+      icon: Icons.backup_outlined,
+      color: const Color(0xFF1677C8),
+      route: '/tenant-backup',
+    ),
+  ],
+),
         // HRMS SERVICE
         
         MenuGroupModel(

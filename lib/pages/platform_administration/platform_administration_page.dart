@@ -354,7 +354,7 @@ class _PlatformAdministrationPageState
     bool highlighted = false,
   }) {
     return Container(
-      height: mobile ? 140 : 140,
+      constraints: const BoxConstraints(minHeight: 140),
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       decoration: highlighted
@@ -475,7 +475,7 @@ class _PlatformAdministrationPageState
       onTap: () => _open(card),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        constraints: BoxConstraints(minHeight: mobile ? 134 : 160),
+        constraints: BoxConstraints(minHeight: mobile ? 122 : 146),
         padding: EdgeInsets.all(mobile ? 16 : 20),
         decoration: BoxDecoration(
           color: Colors.white,

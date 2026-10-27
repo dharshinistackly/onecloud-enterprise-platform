@@ -18,6 +18,9 @@ import '../pages/platform_administration/system_health_page.dart';
 import '../pages/platform_administration/platform_branding_page.dart';
 import '../pages/platform_administration/global_dashboard_page.dart';
 
+import '../pages/tenant_management/tenant_management_page.dart';
+import '../pages/tenant_management/create_tenant_page.dart';
+
 import '../pages/hrms/employee_management_page.dart';
 import '../pages/hrms/attendance_page.dart';
 import '../pages/hrms/leave_page.dart';
@@ -117,6 +120,7 @@ import '../pages/enterprise_ai/prompt_engineering_page.dart';
 import '../pages/enterprise_ai/ai_usage_logs_page.dart';
 
 import '../pages/notification/in_app_notifications_page.dart';
+import '../pages/notification/notifications_page.dart';
 import '../pages/notification/email_notifications_page.dart';
 import '../pages/notification/sms_notifications_page.dart';
 import '../pages/notification/push_notifications_page.dart';
@@ -186,6 +190,9 @@ class AppRoutes {
   static const String platformBranding = '/platform-branding';
   static const String globalDashboard = '/global-dashboard';
   static const String superAdminDashboard = '/super-admin-dashboard';
+
+  static const String tenantManagement = '/tenant-management';
+  static const String createTenant = '/create-tenant';
 
   static const String employeeManagement = '/employee-management';
   static const String attendance = '/attendance';
@@ -286,6 +293,7 @@ static const String promptEngineering = '/prompt-engineering';
 static const String aiUsageLogs = '/ai-usage-logs';
 
 static const String inAppNotifications = '/in-app-notifications';
+static const String notifications = '/notifications';
 static const String emailNotifications = '/email-notifications';
 static const String smsNotifications = '/sms-notifications';
 static const String pushNotifications = '/push-notifications';
@@ -353,6 +361,9 @@ static const String settings = '/settings';
     platformBranding: (context) => const PlatformBrandingPage(),
     globalDashboard: (context) => const GlobalDashboardPage(),
     superAdminDashboard: (context) => const SuperAdminDashboardPage(),
+
+    tenantManagement: (context) => const TenantManagementPage(),
+    createTenant: (context) => const CreateTenantPage(),
 
     employeeManagement: (context) => const EmployeeManagementPage(),
     attendance: (context) => const AttendancePage(),
@@ -455,6 +466,7 @@ promptEngineering: (context) => const PromptEngineeringPage(),
 aiUsageLogs: (context) => const AiUsageLogsPage(),
 
 inAppNotifications: (context) => const InAppNotificationsPage(),
+notifications: (context) => const NotificationsPage(),
 emailNotifications: (context) => const EmailNotificationsPage(),
 smsNotifications: (context) => const SmsNotificationsPage(),
 pushNotifications: (context) => const PushNotificationsPage(),
