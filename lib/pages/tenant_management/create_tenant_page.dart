@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'tenant_ui.dart';
+import '../../widgets/tenant_management_dialogs.dart';
+
 class CreateTenantPage extends StatefulWidget {
   const CreateTenantPage({super.key});
 
@@ -26,11 +29,6 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
   String _language = 'English';
   String _country = '';
 
-  static const Color primaryColor = Color(0xFF3047FF);
-  static const Color borderColor = Color(0xFFDCE4F0);
-  static const Color textColor = Color(0xFF202D40);
-  static const Color mutedColor = Color(0xFF53647D);
-
   @override
   void dispose() {
     _tenantNameController.dispose();
@@ -43,7 +41,13 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
     super.dispose();
   }
 
-  void _resetForm() {
+  Future<void> _resetForm() async {
+    if (!await showResetChangesDialog(context)) return;
+    if (!mounted) return;
+    _clearForm();
+  }
+
+  void _clearForm() {
     _formKey.currentState?.reset();
 
     _tenantNameController.clear();
@@ -63,23 +67,29 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
     });
   }
 
-  void _createTenant() {
+  Future<void> _createTenant() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_country.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a country.')),
+      showTenantToast(
+        context,
+        title: 'Country Required',
+        message: 'Please select a country.',
+        type: TenantToastType.danger,
+        icon: Icons.error_outline,
       );
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Form validated. Tenant creation is not connected yet.',
-        ),
-      ),
+    final name = _tenantNameController.text.trim();
+
+    await showTenantCreatedDialog(
+      context,
+      tenantName: name.isEmpty ? 'The tenant' : name,
     );
+
+    if (!mounted) return;
+    _clearForm();
   }
 
   Widget _field({
@@ -92,47 +102,14 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: mutedColor,
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 42,
-          child: TextFormField(
-            controller: controller,
-            keyboardType: keyboardType,
-            validator: validator,
-            style: const TextStyle(fontSize: 14, color: textColor),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF42536D),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(color: borderColor),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(color: borderColor),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(color: primaryColor),
-              ),
-              errorStyle: const TextStyle(fontSize: 10),
-            ),
-          ),
+        TLabel(label),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          validator: validator,
+          style: TUi.fieldText,
+          decoration: TUi.input(hint: hint),
         ),
       ],
     );
@@ -147,56 +124,27 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: mutedColor,
+        TLabel(label),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<String>(
+          value: value,
+          isExpanded: true,
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            size: 18,
+            color: TUi.muted,
           ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 42,
-          child: DropdownButtonFormField<String>(
-            value: value,
-            isExpanded: true,
-            icon: const Icon(
-              Icons.keyboard_arrow_down,
-              color: mutedColor,
-            ),
-            style: const TextStyle(fontSize: 14, color: textColor),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(color: borderColor),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(color: borderColor),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(color: primaryColor),
-              ),
-            ),
-            items: items
-                .map(
-                  (item) => DropdownMenuItem(
-                    value: item,
-                    child: Text(
-                      item,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-                .toList(),
-            onChanged: onChanged,
-          ),
+          style: TUi.fieldText,
+          decoration: TUi.input(),
+          items: items
+              .map(
+                (item) => DropdownMenuItem(
+                  value: item,
+                  child: Text(item, overflow: TextOverflow.ellipsis),
+                ),
+              )
+              .toList(),
+          onChanged: onChanged,
         ),
       ],
     );
@@ -206,60 +154,42 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Country',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: mutedColor,
+        const TLabel('Country'),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<String>(
+          value: _country.isEmpty ? null : _country,
+          isExpanded: true,
+          hint: const Text(
+            'Select Country',
+            style: TextStyle(fontSize: 13, color: TUi.hint),
           ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 42,
-          child: DropdownButtonFormField<String>(
-            value: _country.isEmpty ? null : _country,
-            isExpanded: true,
-            hint: const Text(
-              'Select Country',
-              style: TextStyle(fontSize: 14, color: textColor),
-            ),
-            icon: const Icon(Icons.keyboard_arrow_down),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(color: borderColor),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(color: borderColor),
-              ),
-            ),
-            items: const [
-              'India',
-              'United States',
-              'United Kingdom',
-              'Singapore',
-              'Australia',
-              'Canada',
-              'Germany',
-              'Japan',
-            ]
-                .map(
-                  (country) => DropdownMenuItem(
-                    value: country,
-                    child: Text(country),
-                  ),
-                )
-                .toList(),
-            onChanged: (value) {
-              setState(() => _country = value ?? '');
-            },
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            size: 18,
+            color: TUi.muted,
           ),
+          style: TUi.fieldText,
+          decoration: TUi.input(),
+          items: const [
+            'India',
+            'United States',
+            'United Kingdom',
+            'Singapore',
+            'Australia',
+            'Canada',
+            'Germany',
+            'Japan',
+          ]
+              .map(
+                (country) => DropdownMenuItem(
+                  value: country,
+                  child: Text(country),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
+            setState(() => _country = value ?? '');
+          },
         ),
       ],
     );
@@ -269,44 +199,34 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Status',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: mutedColor,
-          ),
-        ),
-        const SizedBox(height: 6),
+        const TLabel('Status'),
+        const SizedBox(height: 4),
         Wrap(
-          spacing: 12,
+          spacing: 16,
           children: ['Active', 'Inactive'].map((status) {
             return InkWell(
+              borderRadius: BorderRadius.circular(6),
               onTap: () => setState(() => _status = status),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Radio<String>(
-                    value: status,
-                    groupValue: _status,
-                    activeColor: const Color(0xFF009B70),
-                    materialTapTargetSize:
-                        MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => _status = value);
-                      }
-                    },
-                  ),
-                  Text(
-                    status,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: textColor,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Radio<String>(
+                      value: status,
+                      groupValue: _status,
+                      activeColor: TUi.blue,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() => _status = value);
+                        }
+                      },
                     ),
-                  ),
-                ],
+                    Text(status, style: TUi.fieldText),
+                  ],
+                ),
               ),
             );
           }).toList(),
@@ -317,83 +237,25 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
 
   Widget _section({
     required String title,
-    required int number,
+    required IconData icon,
     required List<Widget> children,
     required bool isDesktop,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: borderColor),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
-            ),
-            child: Row(
-              children: [
-                if (isDesktop) ...[
-                  Container(
-                    width: 30,
-                    height: 30,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF0F6FF),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '$number',
-                      style: const TextStyle(
-                        color: primaryColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, color: Color(0xFFEDF1F7)),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: isDesktop
-                ? Column(
-                    children: [
-                      for (final row in children)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: row,
-                        ),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (int i = 0; i < children.length; i++) ...[
-                        children[i],
-                        if (i != children.length - 1)
-                          const SizedBox(height: 16),
-                      ],
-                    ],
-                  ),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TCard(
+        title: title,
+        icon: icon,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (int i = 0; i < children.length; i++) ...[
+              children[i],
+              if (i != children.length - 1) const SizedBox(height: 16),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -414,28 +276,15 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
     required IconData icon,
     required VoidCallback onPressed,
     required bool primary,
+    bool expand = false,
   }) {
-    return SizedBox(
-      height: 44,
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 18),
-        label: Text(label),
-        style: OutlinedButton.styleFrom(
-          backgroundColor: primary ? primaryColor : Colors.white,
-          foregroundColor: primary ? Colors.white : textColor,
-          side: BorderSide(
-            color: primary ? primaryColor : borderColor,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(9),
-          ),
-          textStyle: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
+    return TButton(
+      label,
+      icon: icon,
+      onPressed: onPressed,
+      kind: primary ? TButtonKind.primary : TButtonKind.outline,
+      height: expand ? 46 : 34,
+      expand: expand,
     );
   }
 
@@ -447,7 +296,7 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
 
         final tenantInfo = _section(
           title: 'Tenant Information',
-          number: 1,
+          icon: Icons.apartment_outlined,
           isDesktop: isDesktop,
           children: isDesktop
               ? [
@@ -534,7 +383,7 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
 
         final subscription = _section(
           title: 'Subscription',
-          number: 2,
+          icon: Icons.workspace_premium_outlined,
           isDesktop: isDesktop,
           children: [
             if (isDesktop)
@@ -577,7 +426,7 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
 
         final administrator = _section(
           title: 'Primary Administrator',
-          number: 3,
+          icon: Icons.admin_panel_settings_outlined,
           isDesktop: isDesktop,
           children: isDesktop
               ? [
@@ -660,7 +509,7 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
 
         final regionalSettings = _section(
           title: 'Regional Settings',
-          number: 4,
+          icon: Icons.language_outlined,
           isDesktop: isDesktop,
           children: [
             if (isDesktop)
@@ -739,10 +588,11 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
         );
 
         return Container(
-          color: const Color(0xFFFAFBFD),
+          color: TUi.bg,
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(isDesktop ? 20 : 16),
-            child: Center(
+            padding: TUi.pagePadding(!isDesktop),
+            child: Align(
+              alignment: Alignment.topLeft,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1500),
                 child: Form(
@@ -750,52 +600,29 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Tenant Management  /  Create tenant',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: mutedColor,
-                        ),
-                      ),
+                      const TBreadcrumb(['Tenant Management', 'Create Tenant']),
                       const SizedBox(height: 8),
-                      if (isDesktop)
-                        Row(
-                          children: [
-                            const Expanded(
-                              child: Text(
-                                'Create tenant',
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w700,
-                                  color: textColor,
-                                ),
-                              ),
-                            ),
-                            _pageButton(
-                              label: 'Reset',
-                              icon: Icons.refresh,
-                              onPressed: _resetForm,
-                              primary: false,
-                            ),
-                            const SizedBox(width: 10),
-                            _pageButton(
-                              label: 'Create Tenant',
-                              icon: Icons.add,
-                              onPressed: _createTenant,
-                              primary: true,
-                            ),
-                          ],
-                        )
-                      else
-                        const Text(
-                          'Create tenant',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: textColor,
+                      TPageHeader(
+                        title: 'Create Tenant',
+                        subtitle:
+                            'Set up a new tenant organization with its plan, administrator and regional defaults.',
+                        mobile: !isDesktop,
+                        actions: [
+                          _pageButton(
+                            label: 'Reset',
+                            icon: Icons.refresh,
+                            onPressed: _resetForm,
+                            primary: false,
                           ),
-                        ),
-                      const SizedBox(height: 18),
+                          _pageButton(
+                            label: 'Create Tenant',
+                            icon: Icons.add,
+                            onPressed: _createTenant,
+                            primary: true,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
                       tenantInfo,
                       subscription,
                       administrator,
@@ -809,6 +636,7 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
                                 icon: Icons.refresh,
                                 onPressed: _resetForm,
                                 primary: false,
+                                expand: true,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -818,6 +646,7 @@ class _CreateTenantPageState extends State<CreateTenantPage> {
                                 icon: Icons.add,
                                 onPressed: _createTenant,
                                 primary: true,
+                                expand: true,
                               ),
                             ),
                           ],

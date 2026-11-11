@@ -20,6 +20,11 @@ import '../pages/platform_administration/global_dashboard_page.dart';
 
 import '../pages/tenant_management/tenant_management_page.dart';
 import '../pages/tenant_management/create_tenant_page.dart';
+import '../pages/tenant_management/tenant_configuration_page.dart';
+import '../pages/tenant_management/tenant_branding_page.dart';
+import '../pages/tenant_management/tenant_database_page.dart';
+import '../pages/tenant_management/tenant_isolation_page.dart';
+import '../pages/tenant_management/tenant_backup_page.dart';
 
 import '../pages/hrms/employee_management_page.dart';
 import '../pages/hrms/attendance_page.dart';
@@ -193,6 +198,11 @@ class AppRoutes {
 
   static const String tenantManagement = '/tenant-management';
   static const String createTenant = '/create-tenant';
+  static const String tenantConfiguration = '/tenant-configuration';
+  static const String tenantBranding = '/tenant-branding';
+  static const String tenantDatabase = '/tenant-database';
+  static const String tenantIsolation = '/tenant-isolation';
+  static const String tenantBackup = '/tenant-backup';
 
   static const String employeeManagement = '/employee-management';
   static const String attendance = '/attendance';
@@ -364,6 +374,11 @@ static const String settings = '/settings';
 
     tenantManagement: (context) => const TenantManagementPage(),
     createTenant: (context) => const CreateTenantPage(),
+    tenantConfiguration: (context) => const TenantConfigurationPage(),
+    tenantBranding: (context) => const TenantBrandingPage(),
+    tenantDatabase: (context) => const TenantDatabasePage(),
+    tenantIsolation: (context) => const TenantIsolationPage(),
+    tenantBackup: (context) => const TenantBackupPage(),
 
     employeeManagement: (context) => const EmployeeManagementPage(),
     attendance: (context) => const AttendancePage(),

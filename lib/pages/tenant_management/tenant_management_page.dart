@@ -1,6 +1,9 @@
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+import 'tenant_ui.dart';
+import '../../widgets/dashboard_dialogs.dart';
+import '../../utils/chart_csv_export.dart';
+import '../../widgets/tenant_management_dialogs.dart';
 
 class TenantManagementPage extends StatefulWidget {
   const TenantManagementPage({super.key});
@@ -11,56 +14,53 @@ class TenantManagementPage extends StatefulWidget {
 }
 
 class _TenantManagementPageState extends State<TenantManagementPage> {
-  static const Color navy = Color(0xFF252D63);
-  static const Color primary = Color(0xFF303FF5);
-  static const Color borderColor = Color(0xFFDCE4F0);
-  static const Color muted = Color(0xFF718096);
-
   final TextEditingController searchController = TextEditingController();
+
+  static const int pageSize = 5;
 
   final List<Map<String, dynamic>> tenants = [
     {
       'name': 'ABC PVT LTD',
-      'id': 'TEN00X',
+      'id': 'TEN001',
       'plan': 'Enterprise',
       'status': 'Active',
       'date': '10-05-2026',
       'region': 'India',
-      'selected': true,
+      'selected': false,
     },
     {
-      'name': 'ABC PVT LTD',
-      'id': 'TEN00X',
-      'plan': 'Enterprise',
+      'name': 'XYZ Technologies',
+      'id': 'TEN002',
+      'plan': 'Professional',
       'status': 'Inactive',
-      'date': '10-05-2026',
+      'date': '12-05-2026',
       'region': 'India',
       'selected': false,
     },
     {
-      'name': 'ABC PVT LTD',
-      'id': 'TEN00X',
+      'name': 'Global Solutions',
+      'id': 'TEN003',
       'plan': 'Enterprise',
       'status': 'Active',
-      'date': '10-05-2026',
+      'date': '15-05-2026',
       'region': 'India',
       'selected': false,
     },
     {
-      'name': 'ABC PVT LTD',
-      'id': 'TEN00X',
-      'plan': 'Enterprise',
+      'name': 'Tech Innovations',
+      'id': 'TEN004',
+      'plan': 'Standard',
       'status': 'Active',
-      'date': '10-05-2026',
+      'date': '18-05-2026',
       'region': 'India',
       'selected': false,
     },
     {
-      'name': 'ABC PVT LTD',
-      'id': 'TEN00X',
-      'plan': 'Enterprise',
-      'status': 'Active',
-      'date': '10-05-2026',
+      'name': 'Smart Systems',
+      'id': 'TEN005',
+      'plan': 'Professional',
+      'status': 'Inactive',
+      'date': '20-05-2026',
       'region': 'India',
       'selected': false,
     },
@@ -69,12 +69,41 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
   String subscriptionFilter = 'All';
   String statusFilter = 'All';
   String regionFilter = 'All';
+
   int currentPage = 1;
 
-  List<Map<String, dynamic>> get filteredTenants {
-    return tenants.where((tenant) {
-      final query = searchController.text.toLowerCase();
+  static const List<String> planOptions = [
+    'All',
+    'Enterprise',
+    'Professional',
+    'Standard',
+  ];
 
+  static const List<String> statusOptions = [
+    'All',
+    'Active',
+    'Inactive',
+  ];
+
+  static const List<String> regionOptions = [
+    'All',
+    'India',
+    'United States',
+    'United Kingdom',
+    'Singapore',
+  ];
+
+  static const List<String> regionLabels = [
+    'India (Asia South)',
+    'United States (US East)',
+    'United Kingdom (Europe West)',
+    'Singapore (Asia Southeast)',
+  ];
+
+  List<Map<String, dynamic>> get filteredTenants {
+    final query = searchController.text.toLowerCase().trim();
+
+    return tenants.where((tenant) {
       final matchesSearch =
           tenant['name'].toString().toLowerCase().contains(query) ||
           tenant['id'].toString().toLowerCase().contains(query);
@@ -95,8 +124,28 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
     }).toList();
   }
 
+  int get totalPages {
+    if (filteredTenants.isEmpty) return 1;
+    return (filteredTenants.length / pageSize).ceil();
+  }
+
+  List<Map<String, dynamic>> get paginatedTenants {
+    final items = filteredTenants;
+    final start = (currentPage - 1) * pageSize;
+
+    if (start >= items.length) return [];
+
+    return items.skip(start).take(pageSize).toList();
+  }
+
+  int get activeCount =>
+      tenants.where((t) => t['status'] == 'Active').length;
+
+  int get inactiveCount =>
+      tenants.where((t) => t['status'] == 'Inactive').length;
+
   int get selectedCount =>
-      tenants.where((tenant) => tenant['selected'] == true).length;
+      tenants.where((t) => t['selected'] == true).length;
 
   @override
   void dispose() {
@@ -105,39 +154,14 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    if (!mounted) return;
+    showTenantMessageToast(context, message);
   }
 
-  void toggleTenant(int index, bool value) {
-    setState(() => filteredTenants[index]['selected'] = value);
-  }
-
-  void toggleStatus(Map<String, dynamic> tenant) {
-    setState(() {
-      tenant['status'] =
-          tenant['status'] == 'Active' ? 'Inactive' : 'Active';
-    });
-  }
-
-  Future<void> exportTenants() async {
-    final rows = <String>[
-      'Tenant Name,Tenant ID,License Plan,Status,Created On,Region',
-      ...filteredTenants.map((tenant) =>
-          '${tenant['name']},${tenant['id']},${tenant['plan']},'
-          '${tenant['status']},${tenant['date']},${tenant['region']}'),
-    ];
-
-    await Clipboard.setData(ClipboardData(text: rows.join('\n')));
-
-    if (mounted) {
-      showMessage('Tenant report copied as CSV. Paste it into Excel.');
-    }
+  Future<void> refresh() async {
+    await showTenantRefreshingDialog(context);
+    if (!mounted) return;
+    setState(() {});
   }
 
   void clearFilters() {
@@ -150,55 +174,224 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
     });
   }
 
+  Future<void> toggleStatus(Map<String, dynamic> tenant) async {
+    final enable = tenant['status'] != 'Active';
+
+    final confirmed = await showTenantStatusDialog(
+      context: context,
+      tenantName: tenant['name'],
+      tenantDescription: '${tenant['id']} • ${tenant['plan']} Plan',
+      enable: enable,
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() {
+      tenant['status'] = enable ? 'Active' : 'Inactive';
+    });
+
+    _statusToast(enable, "'${tenant['name']}'", 1);
+  }
+
+  void _statusToast(bool enable, String subject, int count) {
+    final many = count > 1;
+
+    showTenantToast(
+      context,
+      title: enable
+          ? (many ? 'Tenants Enabled' : 'Tenant Enabled')
+          : (many ? 'Tenants Disabled' : 'Tenant Disabled'),
+      message: many
+          ? '$count tenants have been ${enable ? 'activated' : 'deactivated'} across the platform.'
+          : '$subject has been ${enable ? 'activated' : 'deactivated'} across the platform.',
+      type: enable ? TenantToastType.success : TenantToastType.danger,
+      icon: Icons.check_circle_outline,
+    );
+  }
+  Future<void> configureTenant(Map<String, dynamic> tenant) async {
+    final result = await showConfigureTenantDialog(
+      context,
+      tenantName: tenant['name'].toString(),
+      plan: tenant['plan'].toString(),
+      region: tenant['region'].toString(),
+      storageGb: (tenant['storage'] as int?) ?? 200,
+      active: tenant['status'] == 'Active',
+      plans: planOptions.where((p) => p != 'All').toList(),
+      regions: regionLabels,
+    );
+
+    if (result == null || !mounted) return;
+
+    setState(() {
+      tenant['plan'] = result.plan;
+      tenant['region'] = result.region.split(' (').first;
+      tenant['storage'] = result.storageGb;
+      tenant['status'] = result.active ? 'Active' : 'Inactive';
+      currentPage = 1;
+    });
+
+    showTenantToast(
+      context,
+      title: 'Tenant Updated',
+      message: "'${tenant['name']}' settings have been saved.",
+    );
+  }
+
+  Future<void> backupTenant(Map<String, dynamic> tenant) async {
+    final options = await showBackupTenantDialog(
+      context,
+      tenantName: tenant['name'].toString(),
+    );
+
+    if (options == null || !mounted) return;
+
+    showTenantToast(
+      context,
+      title: 'Backup Started',
+      message:
+          "${options.type} of '${tenant['name']}' to ${options.location} has been started.",
+      type: TenantToastType.info,
+    );
+  }
+
+  String _exportValue(Map<String, dynamic> tenant, String column) {
+    switch (column) {
+      case 'Tenant Name':
+        return tenant['name'].toString();
+      case 'Tenant ID':
+        return tenant['id'].toString();
+      case 'Domain':
+        return (tenant['domain'] ?? '-').toString();
+      case 'Subscription Plan':
+        return tenant['plan'].toString();
+      case 'Status':
+        return tenant['status'].toString();
+      case 'Region':
+        return tenant['region'].toString();
+      case 'Storage Used':
+        return (tenant['storageUsed'] ?? '-').toString();
+      case 'Created On':
+        return tenant['date'].toString();
+      case 'Last Backup':
+        return (tenant['lastBackup'] ?? '-').toString();
+      default:
+        return '';
+    }
+  }
+
+  Future<void> exportTenants() async {
+    final options = await showExportTenantsDialog(
+      context,
+      totalCount: tenants.length,
+      selectedCount: selectedCount,
+    );
+
+    if (options == null || !mounted) return;
+
+    final source = options.selectedOnly
+        ? tenants.where((t) => t['selected'] == true).toList()
+        : tenants;
+
+    final headers = options.columns.where((c) => c != 'Actions').toList();
+
+    if (headers.isEmpty) {
+      showTenantToast(
+        context,
+        title: 'Export Failed',
+        message: 'Select at least one column to export.',
+        type: TenantToastType.danger,
+        icon: Icons.error_outline,
+      );
+      return;
+    }
+
+    final rows = source.map((tenant) {
+      return <Object?>[
+        for (final column in headers) _exportValue(tenant, column),
+      ];
+    }).toList();
+
+    try {
+      switch (options.format) {
+        case ExportFormat.csv:
+          await exportChartCsv(
+            fileName: 'Tenant_Report',
+            headers: headers,
+            rows: rows,
+          );
+          break;
+
+        case ExportFormat.excel:
+          await exportChartExcel(
+            fileName: 'Tenant_Report',
+            headers: headers,
+            rows: rows,
+          );
+          break;
+
+        case ExportFormat.pdf:
+          await exportChartPdf(
+            fileName: 'Tenant_Report',
+            headers: headers,
+            rows: rows,
+          );
+          break;
+      }
+
+      if (mounted) {
+        showTenantToast(
+          context,
+          title: 'Export Complete',
+          message: 'Tenant report exported successfully.',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        showTenantToast(
+          context,
+          title: 'Export Failed',
+          message: '$e',
+          type: TenantToastType.danger,
+          icon: Icons.error_outline,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isDesktop = constraints.maxWidth >= 700;
+        final mobile = TUi.isMobile(constraints.maxWidth);
 
         return Container(
-          color: Colors.white,
+          color: TUi.bg,
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(isDesktop ? 20 : 16),
+            padding: TUi.pagePadding(mobile),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeading(isDesktop),
-                const SizedBox(height: 18),
-                _buildSummaryCards(isDesktop),
-                const SizedBox(height: 18),
-                const Text(
-                  'TENANT LIST',
-                  style: TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.6,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                if (isDesktop)
-                  _buildDesktopTenantList()
+                const TBreadcrumb(['Tenant Management']),
+                const SizedBox(height: 8),
+                _buildHeading(mobile),
+                SizedBox(height: mobile ? 18 : 22),
+                _buildSummaryCards(mobile),
+                SizedBox(height: mobile ? 22 : 24),
+                const TCaption('TENANT LIST'),
+                const SizedBox(height: 10),
+                if (mobile)
+                  _buildMobileTenantList()
                 else
-                  _buildMobileTenantList(),
-                if (!isDesktop) ...[
+                  _buildDesktopTenantList(),
+                if (mobile) ...[
                   const SizedBox(height: 18),
-                  SizedBox(
-                    width: double.infinity,
+                  TButton(
+                    'Export Report',
+                    icon: Icons.download_outlined,
+                    kind: TButtonKind.primary,
                     height: 46,
-                    child: ElevatedButton.icon(
-                      onPressed: exportTenants,
-                      icon: const Icon(Icons.download, size: 17),
-                      label: const Text('Export Report'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF182EDC),
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(7),
-                        ),
-                      ),
-                    ),
+                    expand: true,
+                    onPressed: exportTenants,
                   ),
                 ],
               ],
@@ -209,114 +402,97 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
     );
   }
 
-  Widget _buildHeading(bool isDesktop) {
-    if (!isDesktop) {
-      return Column(
+  Widget _buildHeading(bool mobile) {
+    const subtitle =
+        'Create, configure, and manage multiple tenants from a centralized interface.';
+
+    if (mobile) {
+      return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Platform Administration / Tenant Management',
-            style: TextStyle(color: Color(0xFF8DA0BF), fontSize: 10),
+          const Expanded(
+            child: TPageHeader(
+              title: 'Tenant Management',
+              subtitle: subtitle,
+              mobile: true,
+            ),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Tenant Management',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF202B40),
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () => setState(() {}),
-                icon: const Icon(Icons.refresh, color: muted),
-                tooltip: 'Refresh',
-              ),
-            ],
+          IconButton(
+            onPressed: refresh,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 32,
+              minHeight: 32,
+            ),
+            tooltip: 'Refresh',
+            icon: const Icon(
+              Icons.sync,
+              size: 24,
+              color: Color(0xFF52616F),
+            ),
           ),
         ],
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Expanded(
-              child: Text(
-                'Tenant Management',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF191919),
-                ),
-              ),
-            ),
-            _outlineButton(
-              'Refresh',
-              Icons.refresh,
-              () => setState(() {}),
-            ),
-            const SizedBox(width: 10),
-            _outlineButton('Export', Icons.download, exportTenants),
-            const SizedBox(width: 10),
-            ElevatedButton.icon(
-              onPressed: () => showMessage('Create Tenant form is not connected yet.'),
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Create Tenant'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primary,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 15,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-            ),
-          ],
+    return TPageHeader(
+      title: 'Tenant Management',
+      subtitle: subtitle,
+      mobile: false,
+      actions: [
+        TButton(
+          'Refresh',
+          icon: Icons.refresh,
+          onPressed: refresh,
         ),
-        const SizedBox(height: 3),
-        const Text(
-          'Create, configure, and manage multiple tenants from a centralized interface.',
-          style: TextStyle(fontSize: 14, color: Color(0xFF666666)),
+        TButton(
+          'Export',
+          icon: Icons.download_outlined,
+          onPressed: exportTenants,
+        ),
+        TButton(
+          'Create Tenant',
+          icon: Icons.add,
+          kind: TButtonKind.primary,
+          onPressed: () {
+            showMessage('Create Tenant form is not connected yet.');
+          },
         ),
       ],
     );
   }
 
-  Widget _buildSummaryCards(bool isDesktop) {
+  Widget _buildSummaryCards(bool mobile) {
     final cards = [
-      _summaryCard('Total Tenants', '65', Icons.tune, navy),
+      _summaryCard(
+        'Total Tenants',
+        '${tenants.length}',
+        Icons.apartment_outlined,
+        const Color(0xFFEAF1FF),
+        const Color(0xFF3974E8),
+      ),
       _summaryCard(
         'Active Tenants',
-        '52',
+        '$activeCount',
         Icons.check_circle_outline,
-        const Color(0xFF079447),
+        const Color(0xFFE5F8EF),
+        const Color(0xFF00A96B),
       ),
       _summaryCard(
         'Inactive Tenants',
-        '13',
+        '$inactiveCount',
         Icons.error_outline,
-        const Color(0xFFEF4444),
+        const Color(0xFFFFE8EC),
+        TUi.red,
       ),
     ];
 
-    if (isDesktop) {
+    if (!mobile) {
       return Row(
         children: [
           for (int i = 0; i < cards.length; i++) ...[
+            if (i > 0) const SizedBox(width: 16),
             Expanded(child: cards[i]),
-            if (i != cards.length - 1) const SizedBox(width: 16),
           ],
         ],
       );
@@ -325,8 +501,8 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
     return Column(
       children: [
         for (int i = 0; i < cards.length; i++) ...[
+          if (i > 0) const SizedBox(height: 12),
           cards[i],
-          if (i != cards.length - 1) const SizedBox(height: 12),
         ],
       ],
     );
@@ -336,51 +512,48 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
     String title,
     String value,
     IconData icon,
-    Color iconColor,
+    Color chipBg,
+    Color chipFg,
   ) {
     return Container(
       width: double.infinity,
-      height: 115,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: borderColor),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x05000000),
-            blurRadius: 3,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      decoration: TUi.cardBox(),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF737D8F),
+                    color: TUi.muted,
                   ),
                 ),
-              ),
-              Icon(icon, color: iconColor, size: 21),
-            ],
-          ),
-          const SizedBox(height: 7),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 30,
-              height: 1,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF111A30),
+                const SizedBox(height: 8),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 30,
+                    height: 1,
+                    fontWeight: FontWeight.w700,
+                    color: TUi.ink,
+                  ),
+                ),
+              ],
             ),
+          ),
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: chipBg,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 19, color: chipFg),
           ),
         ],
       ),
@@ -388,98 +561,95 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
   }
 
   Widget _buildMobileTenantList() {
+    final items = paginatedTenants;
+
     return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        border: Border.all(color: borderColor),
-        borderRadius: BorderRadius.circular(17),
-      ),
+      padding: const EdgeInsets.all(12),
+      decoration: TUi.cardBox(),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
-            controller: searchController,
-            onChanged: (_) => setState(() => currentPage = 1),
-            decoration: InputDecoration(
-              hintText: 'Search tenants...',
-              hintStyle: const TextStyle(
-                color: Color(0xFF9AA7BB),
-                fontSize: 12,
-              ),
-              prefixIcon: const Icon(
-                Icons.search,
-                size: 18,
-                color: muted,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 11),
-              isDense: true,
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: borderColor),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: borderColor),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: primary),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
+          _searchField(),
+          const SizedBox(height: 12),
+
+          // Filters wrap onto another line on smaller phones.
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
-              Expanded(
-                child: _filterDropdown(
-                  subscriptionFilter,
-                  'Subscription',
-                  ['All', 'Enterprise', 'Professional', 'Standard'],
-                  (value) => setState(() => subscriptionFilter = value!),
+              SizedBox(
+                width: 145,
+                child: TFilter(
+                  label: 'Subscription',
+                  value: subscriptionFilter,
+                  options: planOptions,
+                  compact: true,
+                  onChanged: (v) {
+                    setState(() {
+                      subscriptionFilter = v;
+                      currentPage = 1;
+                    });
+                  },
                 ),
               ),
-              const SizedBox(width: 5),
-              Expanded(
-                child: _filterDropdown(
-                  statusFilter,
-                  'Status',
-                  ['All', 'Active', 'Inactive'],
-                  (value) => setState(() => statusFilter = value!),
+              SizedBox(
+                width: 110,
+                child: TFilter(
+                  label: 'Status',
+                  value: statusFilter,
+                  options: statusOptions,
+                  compact: true,
+                  onChanged: (v) {
+                    setState(() {
+                      statusFilter = v;
+                      currentPage = 1;
+                    });
+                  },
                 ),
               ),
-              const SizedBox(width: 5),
-              Expanded(
-                child: _filterDropdown(
-                  regionFilter,
-                  'Region',
-                  ['All', 'India'],
-                  (value) => setState(() => regionFilter = value!),
+              SizedBox(
+                width: 105,
+                child: TFilter(
+                  label: 'Region',
+                  value: regionFilter,
+                  options: regionOptions,
+                  compact: true,
+                  onChanged: (v) {
+                    setState(() {
+                      regionFilter = v;
+                      currentPage = 1;
+                    });
+                  },
                 ),
               ),
               TextButton(
                 onPressed: clearFilters,
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
                 child: const Text(
-                  'Clear',
-                  style: TextStyle(fontSize: 11, color: primary),
+                  'Clear Filters',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: TUi.blue,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          ...filteredTenants.map((tenant) => _tenantMobileCard(tenant)),
+
+          const SizedBox(height: 14),
+
+          if (items.isEmpty)
+            _emptyState()
+          else
+            for (final tenant in items) _tenantMobileCard(tenant),
+
           const SizedBox(height: 6),
-          const Text(
-            'Showing 1-5 of 65 features',
-            style: TextStyle(fontSize: 11, color: Color(0xFF8DA0BF)),
+          _resultCount(),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.center,
+            child: _pagination(),
           ),
-          const SizedBox(height: 8),
-          _pagination(),
         ],
       ),
     );
@@ -490,18 +660,13 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
 
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 3),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: borderColor),
-        borderRadius: BorderRadius.circular(17),
-      ),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: TUi.cardBox(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Text(
@@ -509,57 +674,54 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF202B40),
+                    color: TUi.ink,
                   ),
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               _statusBadge(tenant['status']),
             ],
           ),
           const SizedBox(height: 6),
           Text(
             '${tenant['id']} · ${tenant['plan']}',
-            style: const TextStyle(fontSize: 11, color: muted),
+            style: const TextStyle(
+              fontSize: 12,
+              color: TUi.muted,
+            ),
           ),
-          const SizedBox(height: 15),
-
-          // Keep all three action buttons on one horizontal row.
-          Row(
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
-              Expanded(
-                child: _mobileActionButton(
+              SizedBox(
+                width: 95,
+                child: TButton(
                   'Configure',
-                  Icons.tune,
-                  const Color(0xFF344054),
-                  borderColor,
-                  () => showMessage('Configure ${tenant['name']}'),
+                  height: 36,
+                  onPressed: () => configureTenant(tenant),
                 ),
               ),
-              const SizedBox(width: 7),
-              Expanded(
-                child: _mobileActionButton(
+              SizedBox(
+                width: 80,
+                child: TButton(
                   'Backup',
-                  null,
-                  const Color(0xFF344054),
-                  borderColor,
-                  () => showMessage('Backup ${tenant['name']}'),
+                  height: 36,
+                  onPressed: () => backupTenant(tenant),
                 ),
               ),
-              const SizedBox(width: 7),
-              Expanded(
-                child: _mobileActionButton(
+              SizedBox(
+                width: 95,
+                child: TButton(
                   isActive ? 'Disable' : 'Enable',
-                  null,
-                  isActive
-                      ? const Color(0xFFEF4444)
-                      : const Color(0xFF079447),
-                  isActive
-                      ? const Color(0xFFFFA3A3)
-                      : const Color(0xFF86EFAC),
-                  () => toggleStatus(tenant),
+                  height: 36,
+                  kind: isActive
+                      ? TButtonKind.danger
+                      : TButtonKind.success,
+                  onPressed: () => toggleStatus(tenant),
                 ),
               ),
             ],
@@ -570,336 +732,432 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
   }
 
   Widget _buildDesktopTenantList() {
+    final items = paginatedTenants;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFD6D6D6)),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: TUi.cardBox(),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              SizedBox(
-                width: 247,
-                height: 39,
-                child: TextField(
-                  controller: searchController,
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                    hintText: 'Search',
-                    prefixIcon: const Icon(Icons.search, size: 18),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: borderColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: borderColor),
-                    ),
-                  ),
-                ),
+              SizedBox(width: 260, child: _searchField()),
+              TFilter(
+                label: 'Subscription',
+                value: subscriptionFilter,
+                options: planOptions,
+                onChanged: (v) {
+                  setState(() {
+                    subscriptionFilter = v;
+                    currentPage = 1;
+                  });
+                },
               ),
-              const SizedBox(width: 12),
-              _filterDropdown(
-                subscriptionFilter,
-                'Subscription',
-                ['All', 'Enterprise', 'Professional', 'Standard'],
-                (value) => setState(() => subscriptionFilter = value!),
-                desktop: true,
+              TFilter(
+                label: 'Status',
+                value: statusFilter,
+                options: statusOptions,
+                onChanged: (v) {
+                  setState(() {
+                    statusFilter = v;
+                    currentPage = 1;
+                  });
+                },
               ),
-              const SizedBox(width: 12),
-              _filterDropdown(
-                statusFilter,
-                'Status',
-                ['All', 'Active', 'Inactive'],
-                (value) => setState(() => statusFilter = value!),
-                desktop: true,
+              TFilter(
+                label: 'Region',
+                value: regionFilter,
+                options: regionOptions,
+                onChanged: (v) {
+                  setState(() {
+                    regionFilter = v;
+                    currentPage = 1;
+                  });
+                },
               ),
-              const SizedBox(width: 12),
-              _filterDropdown(
-                regionFilter,
-                'Region',
-                ['All', 'India'],
-                (value) => setState(() => regionFilter = value!),
-                desktop: true,
+              TButton(
+                'Clear Filters',
+                icon: Icons.filter_alt_off_outlined,
+                height: 40,
+                onPressed: clearFilters,
               ),
             ],
           ),
           if (selectedCount > 0) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEBF0FF),
-                border: Border.all(color: const Color(0xFF9CB4FF)),
-                borderRadius: BorderRadius.circular(7),
-              ),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: filteredTenants.isNotEmpty &&
-                        filteredTenants.every((t) => t['selected'] == true),
-                    onChanged: (value) {
-                      setState(() {
-                        for (final tenant in filteredTenants) {
-                          tenant['selected'] = value ?? false;
-                        }
-                      });
-                    },
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  Text('$selectedCount tenants selected'),
-                  const Spacer(),
-                  _smallAction('Enable', const Color(0xFF079447), () {
-                    setState(() {
-                      for (final tenant in tenants) {
-                        if (tenant['selected'] == true) {
-                          tenant['status'] = 'Active';
-                        }
-                      }
-                    });
-                  }),
-                  const SizedBox(width: 8),
-                  _smallAction('Disable', Colors.red, () {
-                    setState(() {
-                      for (final tenant in tenants) {
-                        if (tenant['selected'] == true) {
-                          tenant['status'] = 'Inactive';
-                        }
-                      }
-                    });
-                  }),
-                  const SizedBox(width: 8),
-                  _smallAction('Configure', navy,
-                      () => showMessage('Configure selected tenants')),
-                  const SizedBox(width: 8),
-                  _smallAction('Backup', navy,
-                      () => showMessage('Backup selected tenants')),
-                ],
-              ),
-            ),
+            const SizedBox(height: 12),
+            _bulkBar(),
           ],
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: DataTable(
-              headingRowColor: WidgetStateProperty.all(navy),
-              headingTextStyle: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-              dataTextStyle: const TextStyle(
-                color: Color(0xFF171923),
-                fontSize: 14,
-              ),
-              horizontalMargin: 10,
-              columnSpacing: 24,
-              dataRowMinHeight: 55,
-              dataRowMaxHeight: 55,
-              columns: const [
-                DataColumn(label: Text('TENANT NAME')),
-                DataColumn(label: Text('TENANT ID')),
-                DataColumn(label: Text('LICENSE PLAN')),
-                DataColumn(label: Text('STATUS')),
-                DataColumn(label: Text('CREATED ON')),
-              ],
-              rows: filteredTenants.map((tenant) {
-                return DataRow(
-                  selected: tenant['selected'] == true,
-                  onSelectChanged: (value) {
-                    setState(() => tenant['selected'] = value ?? false);
-                  },
-                  cells: [
-                    DataCell(Text(tenant['name'])),
-                    DataCell(Text(tenant['id'])),
-                    DataCell(Text(tenant['plan'])),
-                    DataCell(_statusBadge(tenant['status'])),
-                    DataCell(Text(tenant['date'])),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
-          const Divider(height: 1, color: borderColor),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-            child: Row(
-              children: [
-                const Text(
-                  'Showing 1-5 of 65 features',
-                  style: TextStyle(fontSize: 12, color: muted),
-                ),
-                const Spacer(),
-                _pagination(),
-              ],
-            ),
+          const SizedBox(height: 14),
+          _buildTable(items),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              _resultCount(),
+              const Spacer(),
+              _pagination(),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _filterDropdown(
-    String value,
-    String label,
-    List<String> options,
-    ValueChanged<String?> onChanged, {
-    bool desktop = false,
-  }) {
+  Widget _resultCount() {
+    final total = filteredTenants.length;
+
+    if (total == 0) {
+      return const Text(
+        'Showing 0 tenants',
+        style: TextStyle(fontSize: 12, color: TUi.muted),
+      );
+    }
+
+    final start = ((currentPage - 1) * pageSize) + 1;
+    final end = (start + pageSize - 1).clamp(0, total);
+
+    return Text(
+      'Showing $start-$end of $total tenants',
+      style: const TextStyle(fontSize: 12, color: TUi.muted),
+    );
+  }
+
+  Widget _bulkBar() {
+    Future<void> setSelectedStatus(String status) async {
+      final selected =
+          tenants.where((tenant) => tenant['selected'] == true).toList();
+      if (selected.isEmpty) return;
+
+      final enable = status == 'Active';
+      final single = selected.length == 1;
+
+      final confirmed = await showTenantStatusDialog(
+        context: context,
+        tenantName: single
+            ? selected.first['name'].toString()
+            : '${selected.length} selected tenants',
+        tenantDescription: single
+            ? '${selected.first['id']} • ${selected.first['plan']} Plan'
+            : 'Bulk status change',
+        enable: enable,
+        count: selected.length,
+      );
+
+      if (confirmed != true || !mounted) return;
+
+      setState(() {
+        for (final tenant in selected) {
+          tenant['status'] = status;
+        }
+      });
+
+      _statusToast(
+        enable,
+        single ? "'${selected.first['name']}'" : '',
+        selected.length,
+      );
+    }
+
     return Container(
-      height: desktop ? 39 : 32,
-      padding: const EdgeInsets.symmetric(horizontal: 5),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 10,
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: borderColor),
+        color: const Color(0xFFF1F5FF),
+        border: Border.all(color: const Color(0xFFD8E5FF)),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          isDense: true,
-          icon: const Icon(Icons.keyboard_arrow_down, size: 15),
-          style: TextStyle(
-            fontSize: desktop ? 14 : 10,
-            color: const Color(0xFF344054),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            selectedCount == 1
+                ? '1 tenant selected'
+                : '$selectedCount tenants selected',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: TUi.ink,
+            ),
           ),
-          items: options.map((option) {
-            return DropdownMenuItem(
-              value: option,
-              child: Text(
-                option == 'All' ? label : option,
-                overflow: TextOverflow.ellipsis,
-              ),
-            );
-          }).toList(),
-          onChanged: onChanged,
+          TButton(
+            'Enable',
+            compact: true,
+            kind: TButtonKind.success,
+            onPressed: () => setSelectedStatus('Active'),
+          ),
+          TButton(
+            'Disable',
+            compact: true,
+            kind: TButtonKind.danger,
+            onPressed: () => setSelectedStatus('Inactive'),
+          ),
+          TButton(
+            'Clear Selection',
+            compact: true,
+            onPressed: () {
+              setState(() {
+                for (final tenant in tenants) {
+                  tenant['selected'] = false;
+                }
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTable(List<Map<String, dynamic>> items) {
+    final allSelected =
+        items.isNotEmpty && items.every((t) => t['selected'] == true);
+
+    final anySelected =
+        items.any((t) => t['selected'] == true);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: TUi.border),
+          borderRadius: BorderRadius.circular(10),
         ),
+        child: Column(
+          children: [
+            Container(
+              height: 50,
+              color: TUi.navy,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 36,
+                    child: Checkbox(
+                      tristate: true,
+                      value: allSelected
+                          ? true
+                          : (anySelected ? null : false),
+                      activeColor: Colors.white,
+                      checkColor: TUi.navy,
+                      side: const BorderSide(
+                        color: Colors.white,
+                        width: 1.5,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize:
+                          MaterialTapTargetSize.shrinkWrap,
+                      onChanged: (_) {
+                        setState(() {
+                          for (final tenant in items) {
+                            tenant['selected'] = !allSelected;
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  const Expanded(
+                    flex: 26,
+                    child: Text(
+                      'TENANT NAME',
+                      style: TUi.tableHeader,
+                    ),
+                  ),
+                  const Expanded(
+                    flex: 16,
+                    child: Text(
+                      'TENANT ID',
+                      style: TUi.tableHeader,
+                    ),
+                  ),
+                  const Expanded(
+                    flex: 18,
+                    child: Text(
+                      'LICENSE PLAN',
+                      style: TUi.tableHeader,
+                    ),
+                  ),
+                  const Expanded(
+                    flex: 16,
+                    child: Text(
+                      'STATUS',
+                      style: TUi.tableHeader,
+                    ),
+                  ),
+                  const Expanded(
+                    flex: 16,
+                    child: Text(
+                      'CREATED ON',
+                      style: TUi.tableHeader,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (items.isEmpty)
+              _emptyState()
+            else
+              for (int i = 0; i < items.length; i++)
+                _tableRow(items[i], i == items.length - 1),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tableRow(
+    Map<String, dynamic> tenant,
+    bool last,
+  ) {
+    final selected = tenant['selected'] == true;
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          tenant['selected'] = !selected;
+        });
+      },
+      child: Container(
+        height: 58,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: selected
+              ? const Color(0xFFF5F8FF)
+              : Colors.white,
+          border: last
+              ? null
+              : const Border(
+                  bottom: BorderSide(color: TUi.divider),
+                ),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 36,
+              child: Checkbox(
+                value: selected,
+                activeColor: TUi.blue,
+                side: const BorderSide(
+                  color: Color(0xFFB6C2D1),
+                  width: 1.5,
+                ),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize:
+                    MaterialTapTargetSize.shrinkWrap,
+                onChanged: (value) {
+                  setState(() {
+                    tenant['selected'] = value ?? false;
+                  });
+                },
+              ),
+            ),
+            Expanded(
+              flex: 26,
+              child: Text(
+                tenant['name'],
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: TUi.ink,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 16,
+              child: Text(
+                tenant['id'],
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                  color: TUi.muted,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 18,
+              child: Text(
+                tenant['plan'],
+                style: TUi.tableCell,
+              ),
+            ),
+            Expanded(
+              flex: 16,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: _statusBadge(tenant['status']),
+              ),
+            ),
+            Expanded(
+              flex: 16,
+              child: Text(
+                tenant['date'],
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: TUi.muted,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _emptyState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      alignment: Alignment.center,
+      child: const Text(
+        'No tenants found',
+        style: TextStyle(
+          fontSize: 13,
+          color: TUi.hint,
+        ),
+      ),
+    );
+  }
+
+  Widget _searchField() {
+    return SizedBox(
+      height: 40,
+      child: TextField(
+        controller: searchController,
+        onChanged: (_) {
+          setState(() {
+            currentPage = 1;
+          });
+        },
+        style: TUi.fieldText,
+        decoration: TUi.input(
+          hint: 'Search tenants...',
+          fill: Colors.white,
+          minHeight: 40,
+          prefixIcon: const Icon(
+            Icons.search,
+            size: 19,
+            color: TUi.muted,
+          ),
+        ).copyWith(contentPadding: EdgeInsets.zero),
       ),
     );
   }
 
   Widget _statusBadge(String status) {
-    final active = status == 'Active';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-      decoration: BoxDecoration(
-        color: active
-            ? const Color(0xFFE7F8EF)
-            : const Color(0xFFFFDADA),
-        borderRadius: BorderRadius.circular(7),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: active
-                  ? const Color(0xFF10B981)
-                  : const Color(0xFFEF4444),
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            status,
-            style: TextStyle(
-              color: active
-                  ? const Color(0xFF07864B)
-                  : const Color(0xFFDC2626),
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _mobileActionButton(
-    String label,
-    IconData? icon,
-    Color textColor,
-    Color outlineColor,
-    VoidCallback onPressed,
-  ) {
-    return SizedBox(
-      height: 37,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 3),
-          foregroundColor: textColor,
-          side: BorderSide(color: outlineColor),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          textStyle: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 13),
-                const SizedBox(width: 4),
-              ],
-              Text(label),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _outlineButton(
-    String label,
-    IconData icon,
-    VoidCallback onPressed,
-  ) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 16),
-      label: Text(label),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: const Color(0xFF172033),
-        side: const BorderSide(color: borderColor),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-        ),
-      ),
-    );
-  }
-
-  Widget _smallAction(
-    String label,
-    Color color,
-    VoidCallback onPressed,
-  ) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        foregroundColor: color,
-        side: BorderSide(color: color),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        minimumSize: Size.zero,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(7),
-        ),
-      ),
-      child: Text(label, style: const TextStyle(fontSize: 12)),
+    return TStatusBadge(
+      status,
+      tone: status == 'Active'
+          ? TTone.success
+          : TTone.danger,
     );
   }
 
@@ -907,71 +1165,41 @@ class _TenantManagementPageState extends State<TenantManagementPage> {
     return Wrap(
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 7,
+      spacing: 6,
       children: [
-        _pageButton(
-          Icons.chevron_left,
-          () => setState(() {
-            if (currentPage > 1) currentPage--;
-          }),
+        TPageButton(
+          icon: Icons.chevron_left,
+          enabled: currentPage > 1,
+          onTap: () {
+            if (currentPage > 1) {
+              setState(() {
+                currentPage--;
+              });
+            }
+          },
         ),
-        _pageNumber('1'),
-        _pageNumber('2'),
-        _pageNumber('3'),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 1, vertical: 9),
-          child: Text('...', style: TextStyle(color: muted, fontSize: 12)),
-        ),
-        _pageNumber('13'),
-        _pageButton(
-          Icons.chevron_right,
-          () => setState(() {
-            if (currentPage < 13) currentPage++;
-          }),
+        for (int page = 1; page <= totalPages; page++)
+          TPageButton(
+            text: '$page',
+            selected: currentPage == page,
+            onTap: () {
+              setState(() {
+                currentPage = page;
+              });
+            },
+          ),
+        TPageButton(
+          icon: Icons.chevron_right,
+          enabled: currentPage < totalPages,
+          onTap: () {
+            if (currentPage < totalPages) {
+              setState(() {
+                currentPage++;
+              });
+            }
+          },
         ),
       ],
-    );
-  }
-
-  Widget _pageNumber(String number) {
-    final selected = currentPage.toString() == number;
-
-    return InkWell(
-      onTap: () => setState(() => currentPage = int.parse(number)),
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        width: 28,
-        height: 29,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected ? navy : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          number,
-          style: TextStyle(
-            fontSize: 12,
-            color: selected ? Colors.white : const Color(0xFF172033),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _pageButton(IconData icon, VoidCallback onPressed) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        width: 28,
-        height: 29,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          border: Border.all(color: borderColor),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Icon(icon, size: 18, color: muted),
-      ),
     );
   }
 }
